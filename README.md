@@ -80,29 +80,8 @@
 - 🔐 **Secure** — API keys are encrypted with AES-256 before storage
 - 🌐 **Multi-language** — Supports Python, JavaScript, TypeScript, Go, Rust, Java, and more
 
----
 
-## 🎥 Demo
 
-See PRPilot in action — watch how the bot automatically reviews a pull request:
-
-https://github.com/user-attachments/assets/da426b57-d1fb-42c3-93cd-db7c883e0a28
-
-<details>
-<summary>What happens in the demo?</summary>
-
-1. A pull request is created with code containing issues
-2. The GitHub App automatically triggers
-3. All 4 AI agents analyze the code in parallel
-4. A comprehensive review comment is posted with:
-   - 🔒 Security vulnerabilities (hardcoded secrets, SQL injection)
-   - ⚡ Performance issues (O(n²) complexity, N+1 queries)
-   - 🎨 Style problems (naming conventions)
-   - 🧠 Logic bugs (missing error handling)
-
-</details>
-
----
 
 ## 🚀 Quick Start
 
