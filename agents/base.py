@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
-import google.generativeai as genai
+# google.genai imported lazily inside methods to avoid top-level import errors
 
 
 class IssueSeverity(str, Enum):
@@ -58,9 +58,10 @@ class BaseAgent(ABC):
         self._llm_client = None
         
         if api_key:
-            # Use single Gemini key directly
-            genai.configure(api_key=api_key)
-            self._model = genai.GenerativeModel("gemini-2.0-flash")
+            # Use single Gemini key directly (new google-genai SDK)
+            from google import genai
+            self._genai_client = genai.Client(api_key=api_key)
+            self._model_name = "gemini-2.0-flash"
         else:
             # Use multi-provider LLM client (Gemini + Groq fallback)
             from agents.llm_client import get_llm_client
@@ -229,7 +230,10 @@ Return ONLY the JSON array, no other text.
         try:
             # Use appropriate LLM based on configuration
             if self._single_key:
-                response = self._model.generate_content(prompt)
+                response = self._genai_client.models.generate_content(
+                    model=self._model_name,
+                    contents=prompt
+                )
                 response_text = response.text
             else:
                 # Use multi-provider LLM client with fallback

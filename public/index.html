@@ -1,145 +1,912 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRPilot - Automated PR Reviews</title>
+    <title>PRPilot – AI-Powered Pull Request Reviews</title>
+    <meta name="description" content="PRPilot automatically reviews your GitHub Pull Requests using AI. Catch bugs, security issues, and style problems before they hit production.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #020817;
+            --surface: #0d1117;
+            --surface2: #161b27;
+            --border: rgba(255,255,255,0.07);
+            --accent: #6366f1;
+            --accent2: #06b6d4;
+            --accent3: #8b5cf6;
+            --text: #f1f5f9;
+            --text-muted: #64748b;
+            --text-dim: #94a3b8;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            color: #e8e8e8;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 0%, rgba(99,102,241,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 10%, rgba(6,182,212,0.1) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 50% 100%, rgba(139,92,246,0.08) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Grid overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 40px;
+            background: rgba(2,8,23,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .nav-logo .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 0 20px rgba(99,102,241,0.4);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+
+        .nav-cta {
+            padding: 9px 20px;
+            background: linear-gradient(135deg, var(--accent), var(--accent3));
+            color: white !important;
+            border-radius: 8px;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            transition: opacity 0.2s, transform 0.2s !important;
+            box-shadow: 0 0 20px rgba(99,102,241,0.3);
+        }
+
+        .nav-cta:hover { opacity: 0.9; transform: translateY(-1px); color: white !important; }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            text-align: center;
+            padding: 120px 24px 80px;
         }
 
-        .container {
-            max-width: 700px;
-            text-align: center;
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(99,102,241,0.1);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #a5b4fc;
+            margin-bottom: 32px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-dot {
+            width: 6px; height: 6px;
+            background: #6366f1;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
         }
 
         h1 {
-            font-size: 3rem;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1.05;
+            margin-bottom: 24px;
+            max-width: 900px;
+        }
+
+        h1 .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 50%, #8b5cf6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
+            background-clip: text;
         }
 
-        .tagline {
-            font-size: 1.3rem;
-            color: #aaa;
-            margin-bottom: 40px;
+        .hero-desc {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            max-width: 560px;
+            line-height: 1.7;
+            margin-bottom: 48px;
+            font-weight: 400;
         }
 
-        .features {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 80px;
         }
 
-        .feature {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .feature span {
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .feature strong {
-            color: #fff;
-        }
-
-        .feature p {
-            font-size: 0.9rem;
-            color: #888;
-            margin-top: 8px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 16px 40px;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 0 40px rgba(99,102,241,0.4), 0 4px 20px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 60px rgba(99,102,241,0.5), 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 1.1rem;
-            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
         }
 
-        .btn:hover {
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.15);
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
         }
 
-        .footer {
-            margin-top: 60px;
-            color: #666;
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            gap: 48px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* PR Preview card */
+        .pr-preview {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto 80px;
+            padding: 0 24px;
+        }
+
+        .pr-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 80px rgba(99,102,241,0.1), 0 40px 80px rgba(0,0,0,0.4);
+        }
+
+        .pr-card-header {
+            background: var(--surface2);
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .window-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+        }
+
+        .pr-card-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-left: 8px;
+            font-weight: 500;
+        }
+
+        .pr-body {
+            padding: 20px;
+        }
+
+        .pr-comment {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .pr-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .pr-comment-body {
+            flex: 1;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .pr-comment-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .pr-comment-meta strong {
+            color: #a5b4fc;
+        }
+
+        .pr-issue {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 8px;
+            margin-bottom: 8px;
             font-size: 0.85rem;
         }
 
-        .footer a {
-            color: #00d4ff;
-            text-decoration: none;
+        .pr-issue.warn {
+            background: rgba(234,179,8,0.08);
+            border-color: rgba(234,179,8,0.2);
         }
+
+        .pr-issue.ok {
+            background: rgba(34,197,94,0.08);
+            border-color: rgba(34,197,94,0.2);
+        }
+
+        .issue-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .tag-critical { background: rgba(239,68,68,0.2); color: #f87171; }
+        .tag-warn { background: rgba(234,179,8,0.2); color: #fbbf24; }
+        .tag-ok { background: rgba(34,197,94,0.2); color: #4ade80; }
+
+        /* FEATURES */
+        .section {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #6366f1;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            max-width: 520px;
+            margin: 0 auto 60px;
+            line-height: 1.7;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(99,102,241,0.06), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(99,102,241,0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(99,102,241,0.1);
+        }
+
+        .feature-card:hover::before { opacity: 1; }
+
+        .feature-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .icon-purple { background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); }
+        .icon-red { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); }
+        .icon-yellow { background: rgba(234,179,8,0.15); border: 1px solid rgba(234,179,8,0.3); }
+        .icon-green { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .feature-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 16px;
+        }
+
+        .feature-tag {
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--text-muted);
+        }
+
+        /* HOW IT WORKS */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .step {
+            text-align: center;
+        }
+
+        .step-number {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2));
+            border: 2px solid rgba(99,102,241,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #a5b4fc;
+            margin: 0 auto 20px;
+        }
+
+        .step h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .step p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* CTA SECTION */
+        .cta-section {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 80px 24px 100px;
+        }
+
+        .cta-box {
+            max-width: 680px;
+            margin: 0 auto;
+            background: var(--surface);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 24px;
+            padding: 60px 48px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 80px rgba(99,102,241,0.15);
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta-box h2 {
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .cta-box p {
+            color: var(--text-dim);
+            margin-bottom: 36px;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .cta-perks {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 36px;
+        }
+
+        .cta-perk {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .perk-check {
+            width: 18px; height: 18px;
+            background: rgba(34,197,94,0.15);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: #4ade80;
+        }
+
+        /* FOOTER */
+        footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border);
+            padding: 32px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: gap;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--text); }
+
+        .footer-copy {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Dividers */
+        .divider {
+            position: relative;
+            z-index: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 640px) {
+            nav { padding: 16px 20px; }
+            .nav-links { display: none; }
+            .steps { grid-template-columns: 1fr; }
+            .cta-box { padding: 40px 24px; }
+            footer { flex-direction: column; gap: 20px; text-align: center; }
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .float { animation: float 4s ease-in-out infinite; }
+
+        /* Typing cursor */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .cursor { animation: blink 1s infinite; }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>🤖 PRPilot</h1>
-        <p class="tagline">Automated pull request reviews powered by AI</p>
 
-        <div class="features">
-            <div class="feature">
-                <span>🎨</span>
-                <strong>Style Analysis</strong>
-                <p>Naming conventions, formatting, code organization</p>
-            </div>
-            <div class="feature">
-                <span>🔒</span>
-                <strong>Security Scanning</strong>
-                <p>Vulnerabilities, hardcoded secrets, injection risks</p>
-            </div>
-            <div class="feature">
-                <span>⚡</span>
-                <strong>Performance Review</strong>
-                <p>Complexity issues, memory leaks, N+1 queries</p>
-            </div>
-            <div class="feature">
-                <span>🧠</span>
-                <strong>Logic Checking</strong>
-                <p>Bugs, edge cases, error handling</p>
-            </div>
-        </div>
+<!-- NAV -->
+<nav>
+    <a href="/" class="nav-logo">
+        <div class="logo-icon">🤖</div>
+        PRPilot
+    </a>
+    <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it Works</a>
+        <a href="https://github.com/mirzasayzz/prpilot" target="_blank">GitHub</a>
+        <a href="https://github.com/apps/prpilot-mirzasayzz" class="nav-cta" id="nav-install-btn">Install Free</a>
+    </div>
+</nav>
 
-        <a href="https://github.com/apps/prpilot" class="btn">
-            Install on GitHub
+<!-- HERO -->
+<section class="hero">
+    <div class="badge">
+        <div class="badge-dot"></div>
+        AI-Powered Code Review
+    </div>
+
+    <h1>
+        Your AI <span class="gradient-text">Code Reviewer</span><br>
+        Never Sleeps
+    </h1>
+
+    <p class="hero-desc">
+        PRPilot automatically reviews every Pull Request — catching bugs, security vulnerabilities, performance issues, and style problems before they hit production.
+    </p>
+
+    <div class="hero-buttons">
+        <a href="https://github.com/apps/prpilot-mirzasayzz" class="btn-primary" id="hero-install-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6C20.6 21.8 24 17.3 24 12c0-6.6-5.4-12-12-12z"/></svg>
+            Install on GitHub — Free
         </a>
+        <a href="https://github.com/mirzasayzz/prpilot" class="btn-secondary" target="_blank">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 00-.9-2.4c3-.3 6.2-1.5 6.2-6.7a5.2 5.2 0 00-1.4-3.6 5 5 0 00-.1-3.6s-1.2-.4-3.8 1.4a13 13 0 00-7 0C6.3 3.7 5.1 4.1 5.1 4.1a5 5 0 00-.1 3.6A5.2 5.2 0 003.6 11c0 5.2 3.1 6.4 6.1 6.7a3.4 3.4 0 00-.9 2.4V22"/></svg>
+            View Source
+        </a>
+    </div>
 
-        <div class="footer">
-            <p>Built with Gemini & Groq AI • <a href="https://github.com/aakashyadav27/prpilot">View
-                    Source</a></p>
+    <div class="stats-bar">
+        <div class="stat">
+            <div class="stat-value">4</div>
+            <div class="stat-label">AI Agents</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">Free to Use</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">&lt;30s</div>
+            <div class="stat-label">Review Time</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">∞</div>
+            <div class="stat-label">PRs Reviewed</div>
         </div>
     </div>
-</body>
+</section>
 
+<!-- PR PREVIEW CARD -->
+<div class="pr-preview">
+    <div class="pr-card float">
+        <div class="pr-card-header">
+            <div class="window-dot" style="background:#ff5f57"></div>
+            <div class="window-dot" style="background:#ffbd2e"></div>
+            <div class="window-dot" style="background:#28c840"></div>
+            <span class="pr-card-title">PRPilot reviewed your pull request #42 · feat: add user authentication</span>
+        </div>
+        <div class="pr-body">
+            <div class="pr-comment">
+                <div class="pr-avatar">🤖</div>
+                <div class="pr-comment-body">
+                    <div class="pr-comment-meta"><strong>PRPilot</strong> · just now · AI Review</div>
+                    <div class="pr-issue">
+                        <span class="issue-tag tag-critical">Critical</span>
+                        <span style="color:#f1f5f9;font-size:0.85rem">Hardcoded secret key detected on line 24. Move to environment variables immediately.</span>
+                    </div>
+                    <div class="pr-issue warn">
+                        <span class="issue-tag tag-warn">Warning</span>
+                        <span style="color:#f1f5f9;font-size:0.85rem">SQL query on line 67 is vulnerable to injection. Use parameterized queries.</span>
+                    </div>
+                    <div class="pr-issue ok">
+                        <span class="issue-tag tag-ok">Pass</span>
+                        <span style="color:#f1f5f9;font-size:0.85rem">Style and formatting looks great! Code follows all naming conventions.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+    <div class="section-label">What we check</div>
+    <h2 class="section-title">Four specialized AI agents,<br>one perfect review</h2>
+    <p class="section-subtitle">Each AI agent is an expert in its domain, working in parallel to give you comprehensive feedback in seconds.</p>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon icon-purple">🎨</div>
+            <h3>Style Analysis</h3>
+            <p>Enforces consistent coding standards, naming conventions, formatting, and code organization patterns across your codebase.</p>
+            <div class="feature-tags">
+                <span class="feature-tag">Naming</span>
+                <span class="feature-tag">Formatting</span>
+                <span class="feature-tag">Structure</span>
+                <span class="feature-tag">Docs</span>
+            </div>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon icon-red">🔒</div>
+            <h3>Security Scanning</h3>
+            <p>Detects vulnerabilities before they ship — SQL injection, hardcoded secrets, insecure dependencies, and authentication flaws.</p>
+            <div class="feature-tags">
+                <span class="feature-tag">SQL Injection</span>
+                <span class="feature-tag">Secrets</span>
+                <span class="feature-tag">XSS</span>
+                <span class="feature-tag">Auth</span>
+            </div>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon icon-yellow">⚡</div>
+            <h3>Performance Review</h3>
+            <p>Identifies bottlenecks, memory leaks, N+1 queries, inefficient algorithms, and unnecessary re-renders before code ships.</p>
+            <div class="feature-tags">
+                <span class="feature-tag">N+1 Queries</span>
+                <span class="feature-tag">Memory</span>
+                <span class="feature-tag">Complexity</span>
+            </div>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon icon-green">🧠</div>
+            <h3>Logic Checking</h3>
+            <p>Catches logic bugs, edge cases, null pointer exceptions, missing error handling, and incorrect business logic implementations.</p>
+            <div class="feature-tags">
+                <span class="feature-tag">Edge Cases</span>
+                <span class="feature-tag">Null Safety</span>
+                <span class="feature-tag">Error Handling</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how-it-works">
+    <div class="section-label">Simple setup</div>
+    <h2 class="section-title">Up and running in 3 steps</h2>
+    <p class="section-subtitle">No configuration files, no CI/CD pipelines to set up. Just install and PRPilot handles the rest.</p>
+
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <h3>Install the App</h3>
+            <p>Click "Install on GitHub" and authorize PRPilot on your repositories. Takes less than 30 seconds.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <h3>Open a Pull Request</h3>
+            <p>Create a PR as you normally would. PRPilot automatically triggers and begins analyzing your code changes.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <h3>Get AI Feedback</h3>
+            <p>Within seconds, a detailed review comment appears on your PR with categorized issues and actionable suggestions.</p>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="cta-box">
+        <h2>Ready to ship better code?</h2>
+        <p>Join developers who use PRPilot to catch issues before they hit production. Free forever, no credit card required.</p>
+
+        <div class="cta-perks">
+            <div class="cta-perk">
+                <div class="perk-check">✓</div>
+                <span>Free to install</span>
+            </div>
+            <div class="cta-perk">
+                <div class="perk-check">✓</div>
+                <span>No config needed</span>
+            </div>
+            <div class="cta-perk">
+                <div class="perk-check">✓</div>
+                <span>Works on any repo</span>
+            </div>
+            <div class="cta-perk">
+                <div class="perk-check">✓</div>
+                <span>Open source</span>
+            </div>
+        </div>
+
+        <a href="https://github.com/apps/prpilot-mirzasayzz" class="btn-primary" style="font-size:1.05rem;padding:18px 40px;" id="cta-install-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6C20.6 21.8 24 17.3 24 12c0-6.6-5.4-12-12-12z"/></svg>
+            Install PRPilot on GitHub
+        </a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <a href="/" class="footer-logo">
+        <div class="logo-icon" style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🤖</div>
+        PRPilot
+    </a>
+
+    <div class="footer-links">
+        <a href="https://github.com/mirzasayzz/prpilot" target="_blank">GitHub</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+    </div>
+
+    <div class="footer-copy">© 2025 PRPilot · Built with Gemini AI</div>
+</footer>
+
+</body>
 </html>
