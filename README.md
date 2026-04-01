@@ -27,7 +27,20 @@
 
 ---
 
-## 🎯 What is this?
+## 📸 Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/screenshot-1.png" alt="PRPilot Landing Page" width="100%">
+  <br><em>PRPilot Landing Page — Live at <a href="https://prpilot-dun.vercel.app">prpilot-dun.vercel.app</a></em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/screenshot-2.png" alt="PRPilot in Action" width="100%">
+  <br><em>PRPilot providing automated AI code review on a GitHub Pull Request</em>
+</p>
+
+---
+
 
 **PRPilot** is a GitHub App that automatically reviews your pull requests using **4 specialized AI agents**. Each agent focuses on a specific aspect of code quality, providing comprehensive feedback that helps catch issues before they reach production.
 
