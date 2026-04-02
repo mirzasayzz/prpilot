@@ -145,6 +145,27 @@ See the [Deployment](#-deployment) section below to host your own instance.
 ### How It Works
 
 ```mermaid
+flowchart TB
+    A["👤 Developer opens\na Pull Request"] --> B["⚡ GitHub sends\nWebhook to Vercel"]
+    B --> C["🔐 Verify webhook\nsignature"]
+    C --> D["📂 Fetch changed\nfiles from GitHub API"]
+    D --> E["🤖 Run 4 AI Agents\nin parallel"]
+
+    E --> E1["🎨 Style"]
+    E --> E2["🔒 Security"]
+    E --> E3["⚡ Performance"]
+    E --> E4["🧠 Logic"]
+
+    E1 & E2 & E3 & E4 --> F["📝 Combine results\n& format Markdown"]
+    F --> G["💬 Post review comment\non the PR"]
+
+    style A fill:#6366f1,color:#fff
+    style G fill:#22c55e,color:#fff
+```
+
+### System Architecture (Detailed)
+
+```mermaid
 %%{init: {'theme': 'neutral'}}%%
 flowchart TB
     subgraph GH[GitHub]
