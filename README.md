@@ -5,26 +5,34 @@
 <h1 align="center">PRPilot</h1>
 
 <p align="center">
-  <strong>Automated pull request reviews powered by AI (Gemini & Groq)</strong>
+  <strong>AI-powered automated code reviews on every GitHub Pull Request</strong>
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#how-it-works">How It Works</a> •
-  <a href="#configuration">Configuration</a> •
-  <a href="#deployment">Deployment</a> •
-  <a href="docs/TESTING_GUIDE.md">🧪 Testing Guide</a> •
-  <a href="#contributing">Contributing</a>
+  <a href="#-what-is-prpilot">About</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-installation">Installation</a> •
+  <a href="#️-architecture">Architecture</a> •
+  <a href="#-deployment">Deployment</a> •
+  <a href="docs/TESTING_GUIDE.md">🧪 Testing Guide</a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.9+-blue.svg" alt="Python Version">
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/Platform-GitHub%20App-black.svg" alt="Platform">
-  <img src="https://img.shields.io/badge/LLM-Gemini%20|%20Groq-orange.svg" alt="LLM">
+  <img src="https://img.shields.io/badge/AI-Gemini%202.0%20Flash-orange.svg" alt="AI Model">
+  <img src="https://img.shields.io/badge/Deploy-Vercel-white.svg" alt="Vercel">
 </p>
+
+---
+
+## 🎯 What is PRPilot?
+
+**PRPilot** is a GitHub App that automatically reviews every Pull Request using **4 specialized AI agents** running in parallel. The moment you open a PR, PRPilot analyzes your code and posts a detailed review comment — catching bugs, security holes, performance issues, and style problems before they hit production.
+
+> 💡 **Powered by Google Gemini 2.0 Flash** — fast, free, and highly accurate code analysis with no subscription required.
 
 ---
 
@@ -32,294 +40,229 @@
 
 <p align="center">
   <img src="docs/screenshots/prpilotlandingpage.png" alt="PRPilot Landing Page" width="100%">
-  <br><em>PRPilot Landing Page — Live at <a href="https://prpilot-dun.vercel.app">prpilot-dun.vercel.app</a></em>
+  <br><em>PRPilot Landing Page — <a href="https://prpilot-dun.vercel.app">prpilot-dun.vercel.app</a></em>
 </p>
 
 <p align="center">
   <img src="docs/screenshots/prpilotgithubapp.png" alt="PRPilot GitHub App" width="100%">
-  <br><em>PRPilot GitHub App — Install directly from GitHub to start reviewing PRs automatically</em>
+  <br><em>Install PRPilot directly from GitHub to start getting automated reviews</em>
 </p>
-
----
-
-
-**PRPilot** is a GitHub App that automatically reviews your pull requests using **4 specialized AI agents**. Each agent focuses on a specific aspect of code quality, providing comprehensive feedback that helps catch issues before they reach production.
-
-> **BYO API Key** — Users bring their own API key (Google Gemini or Groq). No subscription required, pay only for what you use.
 
 ---
 
 ## ✨ Features
 
-<table>
-  <tr>
-    <td width="50%">
-      <h3>🎨 Style Agent</h3>
-      <p>Analyzes naming conventions, code formatting, organization, and adherence to language-specific best practices.</p>
-    </td>
-    <td width="50%">
-      <h3>🔒 Security Agent</h3>
-      <p>Detects vulnerabilities, hardcoded secrets, SQL injection risks, XSS vectors, and authentication issues.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>⚡ Performance Agent</h3>
-      <p>Identifies algorithmic complexity issues, memory leaks, N+1 queries, and optimization opportunities.</p>
-    </td>
-    <td width="50%">
-      <h3>🧠 Logic Agent</h3>
-      <p>Catches potential bugs, edge cases, race conditions, and error handling problems.</p>
-    </td>
-  </tr>
-</table>
+### 🤖 4 Specialized AI Agents
 
-### Additional Highlights
+| Agent | What It Does |
+|-------|-------------|
+| 🎨 **Style Agent** | Naming conventions, formatting, code organization, language best practices |
+| 🔒 **Security Agent** | SQL injection, hardcoded secrets, XSS vectors, authentication flaws |
+| ⚡ **Performance Agent** | O(n²) complexity, memory leaks, N+1 queries, optimization opportunities |
+| 🧠 **Logic Agent** | Bugs, edge cases, null pointer errors, missing error handling |
 
-- 🚀 **One-click Installation** — Install from GitHub Marketplace in seconds
+### 🌟 Additional Highlights
+
+- 🚀 **One-click Install** — Install directly from GitHub, no config files needed
+- 🆓 **Free to Use** — Runs on Gemini 2.0 Flash free tier (15 RPM)
+- 🔐 **Secure** — API keys encrypted with AES-256 before storage, never stored in plain text
+- 🌐 **Multi-language** — Python, JavaScript, TypeScript, Go, Rust, Java, C++, and more
 - ⚙️ **Configurable** — Enable or disable individual agents per repository
-- 🔐 **Secure** — API keys are encrypted with AES-256 before storage
-- 🌐 **Multi-language** — Supports Python, JavaScript, TypeScript, Go, Rust, Java, and more
+- ⚡ **Fast** — Reviews post within 10–30 seconds of opening a PR
+
+---
 
 ## 🚀 Quick Start
 
-### Local Testing (No GitHub App Required)
+### Option A — Test Locally (No GitHub App Required)
 
-Test the AI review agents on any file locally in under 5 minutes:
+Run the AI agents on any file on your machine in under 5 minutes:
 
 ```bash
-# Clone the repository
+# 1. Clone the repo
 git clone https://github.com/mirzasayzz/prpilot.git
 cd prpilot
 
-# Set up virtual environment
+# 2. Set up Python environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Set your Gemini API key (get free at https://aistudio.google.com/apikey)
+# 3. Add your free Gemini API key (get one at https://aistudio.google.com/apikey)
 export GEMINI_API_KEY="your-api-key-here"
 
-# Run a review on the sample file
+# 4. Run a review on the included sample file
 python test_local.py test_samples/sample_code.py
 ```
 
-### Example Output
+**Expected output:**
 
 ```
-🔍 Reviewing: test_samples/sample_code.py
+🤖 PRPilot - Local Test
+Agents: style, security, performance, logic
 
-🔒 Security Agent
-├─ [HIGH] Hardcoded API key detected at line 12
-├─ [MEDIUM] SQL query constructed with string formatting at line 45
-└─ [LOW] Debug flag should be disabled in production at line 3
+📁 Reviewing: test_samples/sample_code.py
+📏 Lines: 103
 
-⚡ Performance Agent
-├─ [MEDIUM] Nested loops creating O(n²) complexity at line 28
-└─ [LOW] Consider using list comprehension at line 15
+🎨 Style Agent analyzing...    ✅ No issues found
+🔒 Security Agent analyzing... ⚠️  2 issues found
+⚡ Performance Agent analyzing... ⚠️  1 issue found
+🧠 Logic Agent analyzing...    ✅ No issues found
 
-🎨 Style Agent
-└─ [INFO] Function 'getData' should use snake_case at line 8
-
-Total: 6 issues found
+📊 SUMMARY: 3 issues found
 ```
+
+### Option B — Use the Live GitHub App
+
+1. Go to 👉 **[github.com/apps/prpilot-mirzasayzz](https://github.com/apps/prpilot-mirzasayzz)**
+2. Click **Install** → select your repositories
+3. Open any Pull Request on those repos
+4. PRPilot will automatically post a review within seconds ✅
 
 ---
 
 ## 📦 Installation
 
-### As a GitHub App
+### Installing the GitHub App
 
-1. Visit the [PRPilot GitHub App](https://github.com/apps/prpilot-mirzasayzz) page
-2. Click **Install** and select your repositories
-3. After installation, configure your Gemini API key
-4. Open a pull request — the AI will automatically review it!
+```
+1. Visit:  https://github.com/apps/prpilot-mirzasayzz
+2. Click:  "Install"
+3. Select: Your account (mirzasayzz) and which repos to enable
+4. Done!   Open a PR to see PRPilot in action
+```
+
+> 📖 For a complete step-by-step walkthrough including how to verify everything is working, see the **[Testing Guide](docs/TESTING_GUIDE.md)**.
 
 ### Self-Hosted Deployment
 
-See the [Deployment](#deployment) section for full self-hosting instructions.
+See the [Deployment](#-deployment) section below to host your own instance.
 
 ---
 
 ## 🏗️ Architecture
 
-### System Overview
+### How It Works
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart TB
-    subgraph GH[GitHub]
-        PR[Pull Request]
-        Review[Review Comment]
-    end
+    A["👤 Developer opens\na Pull Request"] --> B["⚡ GitHub sends\nWebhook to Vercel"]
+    B --> C["🔐 Verify webhook\nsignature"]
+    C --> D["📂 Fetch changed\nfiles from GitHub API"]
+    D --> E["🤖 Run 4 AI Agents\nin parallel"]
 
-    subgraph VC[Vercel Serverless]
-        WH[Webhook Handler]
-        Auth[Verify Signature]
-        Fetch[Fetch Changed Files]
-    end
+    E --> E1["🎨 Style"]
+    E --> E2["🔒 Security"]
+    E --> E3["⚡ Performance"]
+    E --> E4["🧠 Logic"]
 
-    subgraph DB[Supabase]
-        Users[(Users Table)]
-        Keys[(Encrypted Keys)]
-    end
+    E1 & E2 & E3 & E4 --> F["📝 Combine results\n& format Markdown"]
+    F --> G["💬 Post review comment\non the PR"]
 
-    subgraph AGENTS[AI Review Agents]
-        A1[Style Agent]
-        A2[Security Agent]
-        A3[Performance Agent]
-        A4[Logic Agent]
-    end
-
-    subgraph LLM[Google AI]
-        Gemini[(Gemini 2.0 Flash)]
-    end
-
-    Synth[Synthesize Results]
-
-    PR --> WH
-    WH --> Auth
-    Auth --> Users
-    Users --> Keys
-    Auth --> Fetch
-    Fetch --> A1
-    Fetch --> A2
-    Fetch --> A3
-    Fetch --> A4
-    A1 <--> Gemini
-    A2 <--> Gemini
-    A3 <--> Gemini
-    A4 <--> Gemini
-    A1 --> Synth
-    A2 --> Synth
-    A3 --> Synth
-    A4 --> Synth
-    Synth --> Review
+    style A fill:#6366f1,color:#fff
+    style G fill:#22c55e,color:#fff
 ```
 
-### Data Flow
+### Data Flow Table
 
 | Step | Component | Description |
 |:----:|-----------|-------------|
-| 1️⃣ | **GitHub** | PR is opened or updated, triggering a webhook |
-| 2️⃣ | **Webhook Handler** | Verifies GitHub signature, authenticates request |
-| 3️⃣ | **Supabase** | Retrieves user's encrypted Gemini API key |
-| 4️⃣ | **GitHub API** | Fetches the actual code diff and changed files |
-| 5️⃣ | **4 AI Agents** | Run in parallel, each analyzing for specific issues |
-| 6️⃣ | **Gemini 2.0** | Processes code with specialized prompts per agent |
-| 7️⃣ | **Synthesizer** | Combines results, removes duplicates, formats markdown |
-| 8️⃣ | **GitHub API** | Posts the review as a PR comment |
-
-### Security Architecture
-
-```mermaid
-%%{init: {'theme': 'neutral'}}%%
-flowchart LR
-    subgraph User[User]
-        Key[API Key]
-    end
-
-    subgraph App[Application]
-        Encrypt[AES-256 Encrypt]
-        Decrypt[Runtime Decrypt]
-    end
-
-    subgraph Storage[Supabase]
-        Encrypted[(Encrypted Storage)]
-    end
-
-    subgraph Usage[API Call]
-        Gemini[Gemini API]
-    end
-
-    Key --> Encrypt
-    Encrypt --> Encrypted
-    Encrypted --> Decrypt
-    Decrypt --> Gemini
-```
-
-> **Your API key never touches our servers in plain text.** It's encrypted before storage and only decrypted in memory during the review process.
+| 1️⃣ | **GitHub** | PR opened/updated → webhook fired |
+| 2️⃣ | **Vercel** | Receives POST at `/api/webhook`, verifies signature |
+| 3️⃣ | **Supabase** | Looks up installation config and encrypted API key |
+| 4️⃣ | **GitHub API** | Fetches the code diff and changed files |
+| 5️⃣ | **4 AI Agents** | Run concurrently — each specializes in one domain |
+| 6️⃣ | **Gemini 2.0** | Processes each agent's prompt and returns JSON issues |
+| 7️⃣ | **Synthesizer** | Merges results, removes duplicates, formats as Markdown |
+| 8️⃣ | **GitHub API** | Posts the final review comment on the PR |
 
 ---
 
 ## ⚙️ Configuration
 
-After installing the app, you can configure:
+After installing, these settings can be toggled per-installation:
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| **API Key** | Your Google Gemini API key (encrypted) | Required |
-| **Style Agent** | Enable code style analysis | ✅ Enabled |
-| **Security Agent** | Enable security vulnerability detection | ✅ Enabled |
-| **Performance Agent** | Enable performance issue detection | ✅ Enabled |
-| **Logic Agent** | Enable bug and logic error detection | ✅ Enabled |
-
-Configuration is stored encrypted in Supabase and can be updated anytime.
+| `GEMINI_API_KEY` | Your Google Gemini API key | Required |
+| Style Agent | Code style and formatting checks | ✅ On |
+| Security Agent | Security vulnerability scanning | ✅ On |
+| Performance Agent | Performance bottleneck detection | ✅ On |
+| Logic Agent | Bug and logic error detection | ✅ On |
 
 ---
 
 ## 🚀 Deployment
 
+> Want to self-host PRPilot on your own Vercel + Supabase? Follow these steps.
+
 ### Prerequisites
 
 - [Supabase](https://supabase.com) account (free tier works)
 - [Vercel](https://vercel.com) account (free tier works)
-- [Google AI Studio](https://aistudio.google.com) API key
+- [Google AI Studio](https://aistudio.google.com) API key (free)
+- GitHub account to create a GitHub App
 
-### Step 1: Database Setup (Supabase)
+### Step 1 — Database Setup (Supabase)
 
 1. Create a new Supabase project
-2. Run the schema from `db/schema.sql` in the SQL Editor
-3. Copy your project URL and service key
+2. Go to **SQL Editor** → New query
+3. Paste and run the contents of [`db/schema.sql`](db/schema.sql)
+4. Copy your **Project URL** and **service_role** secret key
 
-### Step 2: Create GitHub App
+### Step 2 — Create a GitHub App
 
-1. Go to **GitHub Settings** → **Developer Settings** → **GitHub Apps**
-2. Create a new app with:
+1. Go to **GitHub Settings → Developer Settings → GitHub Apps → New GitHub App**
+2. Fill in:
+   - **Name**: anything unique (e.g. `yourname-prpilot`)
    - **Webhook URL**: `https://your-app.vercel.app/api/webhook`
-   - **Permissions**: Pull requests (Read & Write), Contents (Read)
-   - **Events**: Pull request
-3. Generate and download the private key
-4. Note your App ID and create a webhook secret
+   - **Webhook Secret**: any strong password
+   - **Permissions**: Pull Requests (Read & Write), Contents (Read-only)
+   - **Events**: Subscribe to `Pull request`
+3. Click **Create GitHub App**
+4. Note the **App ID** and generate + download a **Private Key** (`.pem` file)
 
-### Step 3: Deploy to Vercel
+### Step 3 — Deploy to Vercel
 
 ```bash
 # Install Vercel CLI
-npm i -g vercel
+npm install -g vercel
 
-# Deploy
-vercel
+# Login and link project
+vercel login
+vercel link
 
-# Set environment variables
-vercel env add GITHUB_APP_ID
-vercel env add GITHUB_PRIVATE_KEY
-vercel env add GITHUB_WEBHOOK_SECRET
-vercel env add SUPABASE_URL
-vercel env add SUPABASE_SERVICE_KEY
-vercel env add ENCRYPTION_KEY
+# Add environment variables
+echo -n "your-app-id"          | vercel env add GITHUB_APP_ID production
+cat your-key.pem               | vercel env add GITHUB_PRIVATE_KEY production
+echo -n "your-webhook-secret"  | vercel env add GITHUB_WEBHOOK_SECRET production
+echo -n "https://xxx.supabase.co" | vercel env add SUPABASE_URL production
+echo -n "your-service-key"     | vercel env add SUPABASE_SERVICE_KEY production
+echo -n "your-gemini-key"      | vercel env add GEMINI_API_KEY production
+python3 -c "import base64,os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())" \
+                               | vercel env add ENCRYPTION_KEY production
+
+# Deploy to production
+vercel --prod
 ```
+
+### Step 4 — Update GitHub App Webhook URL
+
+1. Go to your GitHub App settings
+2. Update the **Webhook URL** to your actual Vercel deployment URL
+3. Save changes
 
 ### Environment Variables Reference
 
 | Variable | Description |
 |----------|-------------|
-| `GITHUB_APP_ID` | Your GitHub App ID |
-| `GITHUB_PRIVATE_KEY` | GitHub App private key (PEM format) |
-| `GITHUB_WEBHOOK_SECRET` | Secret for webhook signature verification |
+| `GITHUB_APP_ID` | Your GitHub App's numeric ID |
+| `GITHUB_PRIVATE_KEY` | Full PEM private key content |
+| `GITHUB_WEBHOOK_SECRET` | Secret string for webhook signature verification |
 | `SUPABASE_URL` | Your Supabase project URL |
-| `SUPABASE_SERVICE_KEY` | Supabase service role key |
-| `ENCRYPTION_KEY` | 32-byte key for encrypting user API keys |
-
-<details>
-<summary>Generate Encryption Key</summary>
-
-```python
-from cryptography.fernet import Fernet
-print(Fernet.generate_key().decode())
-```
-
-</details>
+| `SUPABASE_SERVICE_KEY` | Supabase service role key (keep secret!) |
+| `GEMINI_API_KEY` | Google Gemini API key |
+| `ENCRYPTION_KEY` | Base64-encoded 32-byte key for encrypting user API keys |
 
 ---
 
@@ -327,65 +270,85 @@ print(Fernet.generate_key().decode())
 
 ```
 prpilot/
-├── api/                      # Vercel serverless functions
-│   ├── webhook.py           # GitHub webhook handler
-│   ├── install.py           # Installation callback
-│   └── config.py            # User configuration API
-├── agents/                   # AI review agents
-│   ├── base.py              # Base agent class
-│   ├── style_agent.py       # Code style analysis
-│   ├── security_agent.py    # Security vulnerability detection
-│   ├── performance_agent.py # Performance issue detection
-│   └── logic_agent.py       # Bug and logic detection
-├── github/                   # GitHub integration
-│   ├── client.py            # GitHub App client
-│   └── webhook_handler.py   # Webhook parser
-├── db/                       # Database
-│   ├── schema.sql           # Supabase schema
-│   └── client.py            # Database client
-├── public/                   # Frontend assets
-│   ├── index.html           # Landing page
-│   └── config.html          # Configuration UI
-├── test_samples/             # Test files with intentional issues
-├── test_local.py            # Local testing CLI
-└── requirements.txt
+├── api/                        # Vercel serverless functions
+│   ├── webhook.py              # Main GitHub webhook handler
+│   ├── config.py               # User configuration endpoint
+│   └── index.py                # Health check endpoint
+├── agents/                     # AI review agents
+│   ├── base.py                 # Base agent class (shared logic)
+│   ├── style_agent.py          # Code style analysis
+│   ├── security_agent.py       # Security vulnerability detection
+│   ├── performance_agent.py    # Performance issue detection
+│   ├── logic_agent.py          # Bug and logic detection
+│   └── llm_client.py           # Multi-provider LLM client (Gemini + Groq fallback)
+├── db/
+│   └── schema.sql              # Supabase database schema
+├── public/
+│   ├── index.html              # Landing page
+│   └── config.html             # User configuration UI
+├── docs/
+│   ├── TESTING_GUIDE.md        # 📖 A-Z guide to test PRPilot
+│   └── screenshots/            # README screenshots
+├── test_samples/
+│   └── sample_code.py          # Sample file with intentional issues
+├── test_local.py               # Local CLI testing tool
+├── requirements.txt
+└── vercel.json                 # Vercel routing config
 ```
+
+---
+
+## 🧪 Testing
+
+For a complete guide on how to verify PRPilot is working end-to-end — including how to create a test PR, check webhook logs, and confirm Supabase is recording data — see:
+
+### 📖 [docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md)
+
+**Quick checklist:**
+- [ ] `curl https://prpilot-dun.vercel.app/api/webhook` returns `{"status": "healthy"}`
+- [ ] GitHub App installed on your test repo
+- [ ] Open a PR on a non-main branch in that repo
+- [ ] PRPilot posts a review comment within 30 seconds
+- [ ] Webhook shows **200 ✅** in GitHub App → Advanced → Recent Deliveries
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
+Contributions are welcome!
 
 1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+2. **Create** a feature branch: `git checkout -b feature/my-feature`
+3. **Commit** your changes: `git commit -m 'feat: add my feature'`
+4. **Push**: `git push origin feature/my-feature`
+5. **Open** a Pull Request (PRPilot will review it automatically! 😄)
 
-### Good First Issues
-
-- Add support for additional programming languages
-- Improve agent prompts for better detection
-- Add more test cases to `test_samples/`
-- Improve documentation
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+**Good first issues:**
+- Improve agent prompts for better detection accuracy
+- Add support for more programming languages
+- Write more test samples in `test_samples/`
+- Improve error handling and retry logic
 
 ---
 
 ## 🔗 Links
 
-- [Privacy Policy](PRIVACY.md)
-- [Terms of Service](TERMS.md)
-- [Get Gemini API Key](https://aistudio.google.com/apikey)
+| Resource | URL |
+|----------|-----|
+| 🌐 Live App | https://prpilot-dun.vercel.app |
+| 📦 GitHub App | https://github.com/apps/prpilot-mirzasayzz |
+| 🗄️ Privacy Policy | [PRIVACY.md](PRIVACY.md) |
+| 📋 Terms of Service | [TERMS.md](TERMS.md) |
+| 🔑 Get Free Gemini Key | https://aistudio.google.com/apikey |
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://github.com/yourusername">Aakash Yadav</a>
+  Built with ❤️ by <a href="https://github.com/mirzasayzz">mirzasayzz</a>
 </p>
