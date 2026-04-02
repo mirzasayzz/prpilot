@@ -15,6 +15,7 @@
   <a href="#how-it-works">How It Works</a> •
   <a href="#configuration">Configuration</a> •
   <a href="#deployment">Deployment</a> •
+  <a href="docs/TESTING_GUIDE.md">🧪 Testing Guide</a> •
   <a href="#contributing">Contributing</a>
 </p>
 
