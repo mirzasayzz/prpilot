@@ -145,22 +145,55 @@ See the [Deployment](#-deployment) section below to host your own instance.
 ### How It Works
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
-    A["👤 Developer opens\na Pull Request"] --> B["⚡ GitHub sends\nWebhook to Vercel"]
-    B --> C["🔐 Verify webhook\nsignature"]
-    C --> D["📂 Fetch changed\nfiles from GitHub API"]
-    D --> E["🤖 Run 4 AI Agents\nin parallel"]
+    subgraph GH[GitHub]
+        PR[Pull Request]
+        Review[Review Comment]
+    end
 
-    E --> E1["🎨 Style"]
-    E --> E2["🔒 Security"]
-    E --> E3["⚡ Performance"]
-    E --> E4["🧠 Logic"]
+    subgraph VC[Vercel Serverless]
+        WH[Webhook Handler]
+        Auth[Verify Signature]
+        Fetch[Fetch Changed Files]
+    end
 
-    E1 & E2 & E3 & E4 --> F["📝 Combine results\n& format Markdown"]
-    F --> G["💬 Post review comment\non the PR"]
+    subgraph DB[Supabase]
+        Users[(Users Table)]
+        Keys[(Encrypted Keys)]
+    end
 
-    style A fill:#6366f1,color:#fff
-    style G fill:#22c55e,color:#fff
+    subgraph AGENTS[AI Review Agents]
+        A1[Style Agent]
+        A2[Security Agent]
+        A3[Performance Agent]
+        A4[Logic Agent]
+    end
+
+    subgraph LLM[Google AI]
+        Gemini[(Gemini 2.0 Flash)]
+    end
+
+    Synth[Synthesize Results]
+
+    PR --> WH
+    WH --> Auth
+    Auth --> Users
+    Users --> Keys
+    Auth --> Fetch
+    Fetch --> A1
+    Fetch --> A2
+    Fetch --> A3
+    Fetch --> A4
+    A1 <--> Gemini
+    A2 <--> Gemini
+    A3 <--> Gemini
+    A4 <--> Gemini
+    A1 --> Synth
+    A2 --> Synth
+    A3 --> Synth
+    A4 --> Synth
+    Synth --> Review
 ```
 
 ### Data Flow Table
@@ -175,6 +208,37 @@ flowchart TB
 | 6️⃣ | **Gemini 2.0** | Processes each agent's prompt and returns JSON issues |
 | 7️⃣ | **Synthesizer** | Merges results, removes duplicates, formats as Markdown |
 | 8️⃣ | **GitHub API** | Posts the final review comment on the PR |
+
+### Security Architecture
+
+```mermaid
+%%{init: {'theme': 'neutral'}}%%
+flowchart LR
+    subgraph User[User]
+        Key[API Key]
+    end
+
+    subgraph App[Application]
+        Encrypt[AES-256 Encrypt]
+        Decrypt[Runtime Decrypt]
+    end
+
+    subgraph Storage[Supabase]
+        Encrypted[(Encrypted Storage)]
+    end
+
+    subgraph Usage[API Call]
+        Gemini[Gemini API]
+    end
+
+    Key --> Encrypt
+    Encrypt --> Encrypted
+    Encrypted --> Decrypt
+    Decrypt --> Gemini
+```
+
+> **Your API key never touches our servers in plain text.** It is encrypted before storage and only decrypted in memory during the review process.
+
 
 ---
 
