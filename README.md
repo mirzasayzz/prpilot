@@ -30,13 +30,13 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/screenshot-1.png" alt="PRPilot Landing Page" width="100%">
+  <img src="docs/screenshots/prpilotlandingpage.png" alt="PRPilot Landing Page" width="100%">
   <br><em>PRPilot Landing Page — Live at <a href="https://prpilot-dun.vercel.app">prpilot-dun.vercel.app</a></em>
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/screenshot-2.png" alt="PRPilot in Action" width="100%">
-  <br><em>PRPilot providing automated AI code review on a GitHub Pull Request</em>
+  <img src="docs/screenshots/prpilotgithubapp.png" alt="PRPilot GitHub App" width="100%">
+  <br><em>PRPilot GitHub App — Install directly from GitHub to start reviewing PRs automatically</em>
 </p>
 
 ---
@@ -80,9 +80,6 @@
 - 🔐 **Secure** — API keys are encrypted with AES-256 before storage
 - 🌐 **Multi-language** — Supports Python, JavaScript, TypeScript, Go, Rust, Java, and more
 
-
-
-
 ## 🚀 Quick Start
 
 ### Local Testing (No GitHub App Required)
@@ -91,7 +88,7 @@ Test the AI review agents on any file locally in under 5 minutes:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/prpilot.git
+git clone https://github.com/mirzasayzz/prpilot.git
 cd prpilot
 
 # Set up virtual environment
@@ -132,9 +129,9 @@ Total: 6 issues found
 
 ### As a GitHub App
 
-1. Visit the app page on GitHub Marketplace
+1. Visit the [PRPilot GitHub App](https://github.com/apps/prpilot-mirzasayzz) page
 2. Click **Install** and select your repositories
-3. After installation, you'll be redirected to configure your Gemini API key
+3. After installation, configure your Gemini API key
 4. Open a pull request — the AI will automatically review it!
 
 ### Self-Hosted Deployment
