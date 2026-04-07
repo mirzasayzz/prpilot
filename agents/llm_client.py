@@ -73,17 +73,19 @@ class GeminiProvider(LLMProvider):
         return len(self.api_keys) > 0 and self._get_next_available_key() is not None
     
     def generate(self, prompt: str) -> LLMResponse:
-        import google.generativeai as genai
+        from google import genai
         
         key = self._get_next_available_key()
         if not key:
             raise Exception("All Gemini API keys are rate limited")
         
-        genai.configure(api_key=key)
-        model = genai.GenerativeModel(self.model_name)
+        client = genai.Client(api_key=key)
         
         try:
-            response = model.generate_content(prompt)
+            response = client.models.generate_content(
+                model=self.model_name,
+                contents=prompt
+            )
             return LLMResponse(
                 text=response.text,
                 provider="gemini",
@@ -91,7 +93,7 @@ class GeminiProvider(LLMProvider):
             )
         except Exception as e:
             error_msg = str(e)
-            if "ResourceExhausted" in error_msg or "429" in error_msg:
+            if "ResourceExhausted" in error_msg or "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
                 # Mark this key as rate limited for 60 seconds
                 self.rate_limited_until[key] = time.time() + 60
             raise
