@@ -165,7 +165,11 @@ class LLMApiProvider(LLMProvider):
         return bool(self.api_key)
     
     def generate(self, prompt: str) -> LLMResponse:
-        import requests
+        import urllib.request
+        import urllib.error
+        import json
+        
+        url = "https://api.llmapi.ai/v1/chat/completions"
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}"
@@ -174,9 +178,16 @@ class LLMApiProvider(LLMProvider):
             "model": self.model_name,
             "messages": [{"role": "user", "content": prompt}]
         }
-        res = requests.post("https://api.llmapi.ai/v1/chat/completions", headers=headers, json=data, timeout=60)
-        res.raise_for_status()
-        res_json = res.json()
+        
+        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
+        try:
+            with urllib.request.urlopen(req, timeout=60) as response:
+                res_body = response.read().decode('utf-8')
+                res_json = json.loads(res_body)
+        except urllib.error.HTTPError as e:
+            raise Exception(f"HTTP Error: {e.code} {e.reason} - {e.read().decode('utf-8')}")
+        except Exception as e:
+            raise Exception(str(e))
         
         return LLMResponse(
             text=res_json["choices"][0]["message"]["content"],
@@ -200,7 +211,11 @@ class APIFreeProvider(LLMProvider):
         return bool(self.api_key)
     
     def generate(self, prompt: str) -> LLMResponse:
-        import requests
+        import urllib.request
+        import urllib.error
+        import json
+        
+        url = "https://apifreellm.com/api/v1/chat"
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}"
@@ -209,9 +224,16 @@ class APIFreeProvider(LLMProvider):
             "message": prompt,
             "model": self.model_name
         }
-        res = requests.post("https://apifreellm.com/api/v1/chat", headers=headers, json=data, timeout=90)
-        res.raise_for_status()
-        res_json = res.json()
+        
+        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
+        try:
+            with urllib.request.urlopen(req, timeout=90) as response:
+                res_body = response.read().decode('utf-8')
+                res_json = json.loads(res_body)
+        except urllib.error.HTTPError as e:
+            raise Exception(f"HTTP Error: {e.code} {e.reason} - {e.read().decode('utf-8')}")
+        except Exception as e:
+            raise Exception(str(e))
         
         return LLMResponse(
             text=res_json.get("response", ""),
@@ -272,13 +294,14 @@ class MultiProviderLLM:
                 continue
             
             try:
-                return provider.generate(prompt)
+                responses = provider.generate(prompt)
+                return responses
             except Exception as e:
-                errors.append(f"{provider.name}: {str(e)[:100]}")
+                errors.append(f"{provider.name}: {str(e)[:300]}")
                 continue
         
         # All providers failed
-        raise Exception(f"All LLM providers failed: {'; '.join(errors)}")
+        raise Exception(f"All LLM providers failed: {' | '.join(errors)}")
     
     def get_status(self) -> dict:
         """Get status of all providers."""
