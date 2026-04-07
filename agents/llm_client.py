@@ -257,10 +257,10 @@ class MultiProviderLLM:
         
         # Load Gemini keys
         gemini_keys = []
-        multi_keys = os.environ.get("GEMINI_API_KEYS", "")
+        multi_keys = os.environ.get("GEMINI_API_KEYS", "").strip()
         if multi_keys:
             gemini_keys.extend([k.strip() for k in multi_keys.split(",") if k.strip()])
-        single_key = os.environ.get("GEMINI_API_KEY", "")
+        single_key = os.environ.get("GEMINI_API_KEY", "").strip()
         if single_key and single_key not in gemini_keys:
             gemini_keys.append(single_key)
         
@@ -268,17 +268,17 @@ class MultiProviderLLM:
             self.providers.append(GeminiProvider(gemini_keys))
         
         # Load Groq key
-        groq_key = os.environ.get("GROQ_API_KEY", "")
+        groq_key = os.environ.get("GROQ_API_KEY", "").strip()
         if groq_key:
             self.providers.append(GroqProvider(groq_key))
             
         # Load LLMApi Backup
-        llmapi_key = os.environ.get("LLMAPI_API_KEY", "")
+        llmapi_key = os.environ.get("LLMAPI_API_KEY", "").strip()
         if llmapi_key:
             self.providers.append(LLMApiProvider(llmapi_key))
             
         # Load APIFree Backup
-        apifree_key = os.environ.get("APIFREE_API_KEY", "")
+        apifree_key = os.environ.get("APIFREE_API_KEY", "").strip()
         if apifree_key:
             self.providers.append(APIFreeProvider(apifree_key))
     
