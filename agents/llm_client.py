@@ -75,28 +75,40 @@ class GeminiProvider(LLMProvider):
     def generate(self, prompt: str) -> LLMResponse:
         from google import genai
         
-        key = self._get_next_available_key()
-        if not key:
-            raise Exception("All Gemini API keys are rate limited")
+        tried_keys = 0
+        max_keys = len(self.api_keys)
+        errors = []
         
-        client = genai.Client(api_key=key)
+        while tried_keys < max_keys:
+            key = self._get_next_available_key()
+            if not key:
+                break
+            
+            tried_keys += 1
+            client = genai.Client(api_key=key)
+            
+            try:
+                response = client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt
+                )
+                return LLMResponse(
+                    text=response.text,
+                    provider="gemini",
+                    model=self.model_name
+                )
+            except Exception as e:
+                error_msg = str(e)
+                if "ResourceExhausted" in error_msg or "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+                    # Mark this key as rate limited for 60 seconds
+                    self.rate_limited_until[key] = time.time() + 60
+                    errors.append(f"Key {tried_keys} rate limited")
+                    continue
+                raise
         
-        try:
-            response = client.models.generate_content(
-                model=self.model_name,
-                contents=prompt
-            )
-            return LLMResponse(
-                text=response.text,
-                provider="gemini",
-                model=self.model_name
-            )
-        except Exception as e:
-            error_msg = str(e)
-            if "ResourceExhausted" in error_msg or "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
-                # Mark this key as rate limited for 60 seconds
-                self.rate_limited_until[key] = time.time() + 60
-            raise
+        if errors:
+            raise Exception(f"All Gemini API keys failed: {'; '.join(errors)}")
+        raise Exception("All Gemini API keys are currently rate limited")
 
 
 class GroqProvider(LLMProvider):
@@ -138,6 +150,76 @@ class GroqProvider(LLMProvider):
         )
 
 
+class LLMApiProvider(LLMProvider):
+    """LLMApi.ai provider (backup)."""
+    
+    def __init__(self, api_key: str, model: str = "gpt-4o"):
+        self.api_key = api_key
+        self.model_name = model
+    
+    @property
+    def name(self) -> str:
+        return "llmapi"
+    
+    def is_available(self) -> bool:
+        return bool(self.api_key)
+    
+    def generate(self, prompt: str) -> LLMResponse:
+        import requests
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
+        data = {
+            "model": self.model_name,
+            "messages": [{"role": "user", "content": prompt}]
+        }
+        res = requests.post("https://api.llmapi.ai/v1/chat/completions", headers=headers, json=data, timeout=60)
+        res.raise_for_status()
+        res_json = res.json()
+        
+        return LLMResponse(
+            text=res_json["choices"][0]["message"]["content"],
+            provider="llmapi",
+            model=self.model_name
+        )
+
+
+class APIFreeProvider(LLMProvider):
+    """APIFreeLLM provider (backup)."""
+    
+    def __init__(self, api_key: str, model: str = "apifreellm"):
+        self.api_key = api_key
+        self.model_name = model
+    
+    @property
+    def name(self) -> str:
+        return "apifreellm"
+    
+    def is_available(self) -> bool:
+        return bool(self.api_key)
+    
+    def generate(self, prompt: str) -> LLMResponse:
+        import requests
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
+        data = {
+            "message": prompt,
+            "model": self.model_name
+        }
+        res = requests.post("https://apifreellm.com/api/v1/chat", headers=headers, json=data, timeout=90)
+        res.raise_for_status()
+        res_json = res.json()
+        
+        return LLMResponse(
+            text=res_json.get("response", ""),
+            provider="apifreellm",
+            model=res_json.get("model", self.model_name)
+        )
+
+
 class MultiProviderLLM:
     """
     Multi-provider LLM client with automatic fallback.
@@ -167,6 +249,16 @@ class MultiProviderLLM:
         groq_key = os.environ.get("GROQ_API_KEY", "")
         if groq_key:
             self.providers.append(GroqProvider(groq_key))
+            
+        # Load LLMApi Backup
+        llmapi_key = os.environ.get("LLMAPI_API_KEY", "")
+        if llmapi_key:
+            self.providers.append(LLMApiProvider(llmapi_key))
+            
+        # Load APIFree Backup
+        apifree_key = os.environ.get("APIFREE_API_KEY", "")
+        if apifree_key:
+            self.providers.append(APIFreeProvider(apifree_key))
     
     def generate(self, prompt: str) -> LLMResponse:
         """
