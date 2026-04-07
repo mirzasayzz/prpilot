@@ -158,7 +158,7 @@ Be concise. Focus on real problems, not style nitpicks."""
         response = client.generate(prompt)
         return response.text
     except Exception as e:
-        return f"⚠️ Review failed for {file_path}: {str(e)[:100]}"
+        return f"⚠️ Review failed for {file_path}: {str(e)}"
 
 
 class handler(BaseHTTPRequestHandler):
