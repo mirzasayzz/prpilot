@@ -25,8 +25,16 @@ def _db(fn, *args, **kwargs):
 # The app owner (mirzasayzz) is unlimited. Every other installation is
 # capped at FREE_DAILY_LIMIT reviews per day, tracked in Supabase.
 OWNER_LOGINS = {s.strip() for s in os.environ.get("PRPILOT_OWNER_LOGINS", "mirzasayzz").split(",") if s.strip()}
-FREE_DAILY_LIMIT = int(os.environ.get("FREE_DAILY_LIMIT", "25"))
-USAGE_WINDOW_HOURS = int(os.environ.get("USAGE_WINDOW_HOURS", "24"))
+
+try:
+    FREE_DAILY_LIMIT = int(os.environ.get("FREE_DAILY_LIMIT", "25"))
+except ValueError:
+    FREE_DAILY_LIMIT = 25
+
+try:
+    USAGE_WINDOW_HOURS = int(os.environ.get("USAGE_WINDOW_HOURS", "24"))
+except ValueError:
+    USAGE_WINDOW_HOURS = 24
 
 
 def _is_owner(account_login: str) -> bool:
@@ -291,7 +299,10 @@ class handler(BaseHTTPRequestHandler):
         
         # Who installed the app? (the account that owns this installation)
         account_login = installation.get("account", {}).get("login", owner)
-        if not _is_owner(account_login) and not _usage_allowed(installation_id):
+        # Only count a review against the quota for new/open PRs, not every
+        # synchronize push on the same PR (avoids one noisy PR burning the cap).
+        counts_toward_limit = action in ("opened", "reopened")
+        if counts_toward_limit and not _is_owner(account_login) and not _usage_allowed(installation_id):
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
