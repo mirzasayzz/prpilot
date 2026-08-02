@@ -1,6 +1,7 @@
 """
 Vercel serverless function: GitHub webhook handler.
-Receives pull_request events, runs AI code review, and posts comments.
+Receives pull_request events, runs AI code review, posts comments,
+and stores review records in Supabase.
 """
 import os
 import sys
@@ -13,6 +14,35 @@ import asyncio
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from http.server import BaseHTTPRequestHandler
+
+
+def _db(fn, *args, **kwargs):
+    """Run an async db.client coroutine from this sync handler."""
+    return asyncio.run(fn(*args, **kwargs))
+
+
+def _store_review_record(installation_id, repo_full_name, pr_number, pr_title, commit_sha):
+    """Create a pending review record in Supabase. Best-effort: never breaks the flow."""
+    try:
+        from db.client import create_installation, create_review, get_installation
+        inst = _db(get_installation, installation_id)
+        if not inst:
+            owner = repo_full_name.split("/")[0] if "/" in repo_full_name else ""
+            _db(create_installation, installation_id, owner)
+            inst = _db(get_installation, installation_id)
+        record = _db(create_review, inst["id"], repo_full_name, pr_number, pr_title, commit_sha)
+        return record
+    except Exception:
+        return None
+
+
+def _update_review_record(review_id, **fields):
+    """Update a review record. Best-effort: never breaks the flow."""
+    try:
+        from db.client import update_review
+        _db(update_review, review_id, **fields)
+    except Exception:
+        pass
 
 
 def verify_signature(payload: bytes, signature: str) -> bool:
@@ -226,8 +256,14 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"error": "Missing PR data"}).encode())
             return
         
+        review_record = None
         try:
-            # Get access token
+            # Store a pending review record in Supabase (best-effort)
+            repo_full_name = f"{owner}/{repo_name}"
+            review_record = _store_review_record(
+                installation_id, repo_full_name, pr_number,
+                pr.get("title", ""), head_sha
+            )
             token = get_github_client(installation_id)
             
             # Get PR files
@@ -242,6 +278,10 @@ class handler(BaseHTTPRequestHandler):
             ]
             
             if not reviewable_files:
+                if review_record:
+                    _update_review_record(review_record["id"], files_reviewed=0,
+                                          issues_found=0, status="completed",
+                                          error_message="No reviewable files")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
@@ -263,15 +303,28 @@ class handler(BaseHTTPRequestHandler):
                 comment = "## 🤖 PRPilot\n\n" + "\n\n---\n\n".join(reviews)
                 post_review_comment(token, owner, repo_name, pr_number, comment)
             
+            # Count issues from the review markdown for analytics
+            issues_found = sum(text.count("🔴") + text.count("🟡") for text in reviews)
+            
+            if review_record:
+                _update_review_record(review_record["id"],
+                                      files_reviewed=len(reviewable_files),
+                                      issues_found=issues_found,
+                                      status="completed")
+            
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps({
                 "status": "reviewed",
-                "files_reviewed": len(reviewable_files)
+                "files_reviewed": len(reviewable_files),
+                "issues_found": issues_found
             }).encode())
             
         except Exception as e:
+            if review_record:
+                _update_review_record(review_record["id"], status="failed",
+                                      error_message=str(e)[:500])
             self.send_response(500)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
