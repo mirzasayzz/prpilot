@@ -239,6 +239,8 @@ Return ONLY the JSON array, no other text.
                 # Use multi-provider LLM client with fallback
                 response = self._llm_client.generate(prompt)
                 response_text = response.text
+                if os.environ.get("DEBUG"):
+                    print(f"[DEBUG] Provider: {response.provider} | Model: {response.model}")
             
             issues = self._parse_response(response_text, file_path)
             

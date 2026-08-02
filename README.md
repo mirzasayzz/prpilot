@@ -58,10 +58,14 @@ PRPilot avoids generic LLM responses by breaking reviews down into strict concur
 | 🧠 **Logic & Bounds** | Edge cases, unhandled nulls, missing try-catches, logic regressions |
 
 ### 🔄 Multi-LLM High-Availability Architecture
-Never suffer from a `429 Rate Limit` failure again. PRPilot utilizes an intelligent fallback chain:
-1. **Multi-Key Gemini Rotation**: Iterates sequentially through an array of Gemini 2.0 Flash API keys to maximize standard throughput.
-2. **GPT-4o via LLMApi**: If Gemini quotas are exhausted, operations seamlessly fall back to LLMApi.ai running `gpt-4o`.
-3. **APIFreeLLM Routing**: The tertiary safety net ensures 100% review uptime during sudden traffic spikes.
+Never suffer from a `429 Rate Limit` failure again. PRPilot utilizes an intelligent automatic fallback chain — if any provider errors, rate-limits, or times out, the next one takes over:
+1. **Multi-Key Gemini Rotation** — rotates through Gemini keys and models (`gemini-2.5-flash` -> `gemini-2.0-flash`).
+2. **Groq** — `llama-3.3-70b-versatile` / `openai/gpt-oss-120b` (OpenAI-compatible).
+3. **Cerebras** — `gpt-oss-120b` / `zai-glm-4.7` (OpenAI-compatible).
+4. **OpenRouter ×2 keys** — `:free` tier models, double quota with two keys.
+5. **SwiftRouter** — `glm-4.7` / `command-r-08-2024` (OpenAI-compatible).
+6. **LLMApi** — `gpt-4o` backup.
+7. **APIFreeLLM** — final safety net for 100% review uptime.
 
 ### 🌟 Additional Highlights
 - 🚀 **Zero-Config Install** — Install directly from GitHub; it works out of the box.
@@ -85,10 +89,17 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# 3. Secure your secrets locally (.env)
-export GEMINI_API_KEYS="key1,key2,key3"    # Supports multiple keys
-export LLMAPI_API_KEY="your-llmapi-key"   # Auto-fallback to GPT-4o
-export APIFREE_API_KEY="your-apifree-key" # Auto-fallback 
+# 3. Secure your secrets locally — copy .env.example to .env.local and fill in keys
+#    (PRPilot follows the same .env.local convention as InvestIQ)
+# Full automatic fallback chain — set at least ONE key:
+#   Gemini -> Groq -> Cerebras -> OpenRouter -> SwiftRouter -> LLMApi -> APIFree
+export GEMINI_API_KEY="your-gemini-key"          # Primary (multi-key via GEMINI_API_KEYS also supported)
+export GROQ_API_KEY="your-groq-key"              # Fallback 1
+export CEREBRAS_API_KEY="your-cerebras-key"      # Fallback 2
+export OPENROUTER_API_KEY_1="your-openrouter-key" # Fallback 3 (+ OPENROUTER_API_KEY_2 for double quota)
+export SWIFTROUTER_API_KEY="your-swiftrouter-key" # Fallback 5
+export LLMAPI_API_KEY="your-llmapi-key"          # Backup
+export APIFREE_API_KEY="your-apifree-key"        # Backup 
 
 # 4. Trigger localized analysis
 python test_local.py test_samples/sample_code.py
@@ -215,10 +226,15 @@ vercel env add GITHUB_WEBHOOK_SECRET production
 vercel env add SUPABASE_URL production
 vercel env add SUPABASE_SERVICE_KEY production
 
-# High-Availability LLM Configuration
-vercel env add GEMINI_API_KEYS production # Comma-separated
-vercel env add LLMAPI_API_KEY production  # First fallback
-vercel env add APIFREE_API_KEY production # Second fallback
+# High-Availability LLM Configuration (full fallback chain)
+vercel env add GEMINI_API_KEYS production     # Comma-separated (primary)
+vercel env add GROQ_API_KEY production        # Fallback 1
+vercel env add CEREBRAS_API_KEY production    # Fallback 2
+vercel env add OPENROUTER_API_KEY_1 production # Fallback 3
+vercel env add OPENROUTER_API_KEY_2 production # Fallback 4 (optional)
+vercel env add SWIFTROUTER_API_KEY production  # Fallback 5
+vercel env add LLMAPI_API_KEY production       # Backup
+vercel env add APIFREE_API_KEY production      # Backup
 
 # Symmetric Encryption Key
 python3 -c "import base64,os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())" | vercel env add ENCRYPTION_KEY production

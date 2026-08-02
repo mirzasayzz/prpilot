@@ -157,35 +157,62 @@ def main():
     
     args = parser.parse_args()
     
-    # Load environment variables
+    # Load environment variables (InvestIQ-style .env.local, with .env fallback)
     load_dotenv()
-    
-    # Get API key - now optional since we have multi-provider support
-    api_key = args.api_key or os.environ.get("GEMINI_API_KEY")
-    
-    # Check if any provider is available
-    if not api_key:
-        # Check for multi-provider keys
-        has_gemini_keys = bool(os.environ.get("GEMINI_API_KEYS"))
-        has_groq_key = bool(os.environ.get("GROQ_API_KEY"))
-        
-        if not has_gemini_keys and not has_groq_key:
-            print_colored("❌ No API keys configured!", "red")
-            print_colored("Set one of these in your .env file:", "yellow")
-            print_colored("  GEMINI_API_KEY=your_key", "white")
-            print_colored("  GEMINI_API_KEYS=key1,key2", "white")
-            print_colored("  GROQ_API_KEY=your_groq_key", "white")
-            sys.exit(1)
-    
+    load_dotenv(".env.local", override=True)
+
+    # Get API key - only used when explicitly provided via --api-key.
+    # By default we run in multi-provider fallback mode so that if one
+    # model fails/rate-limits, the next provider automatically takes over.
+    api_key = args.api_key
+
+    # Check that at least one LLM provider is configured
+    provider_keys = [
+        "GEMINI_API_KEY", "GEMINI_API_KEYS",
+        "GROQ_API_KEY", "CEREBRAS_API_KEY",
+        "OPENROUTER_API_KEY_1", "OPENROUTER_API_KEY_2",
+        "SWIFTROUTER_API_KEY",
+        "LLMAPI_API_KEY", "APIFREE_API_KEY",
+    ]
+    configured = [k for k in provider_keys if os.environ.get(k)]
+
+    if not api_key and not configured:
+        print_colored("❌ No API keys configured!", "red")
+        print_colored("Set at least one of these in your .env file:", "yellow")
+        print_colored("  GEMINI_API_KEY=your_key            (primary)", "white")
+        print_colored("  GEMINI_API_KEYS=key1,key2          (rotation)", "white")
+        print_colored("  GROQ_API_KEY=your_groq_key         (fallback 1)", "white")
+        print_colored("  CEREBRAS_API_KEY=your_key          (fallback 2)", "white")
+        print_colored("  OPENROUTER_API_KEY_1=your_key      (fallback 3)", "white")
+        print_colored("  OPENROUTER_API_KEY_2=your_key      (fallback 4)", "white")
+        print_colored("  SWIFTROUTER_API_KEY=your_key       (fallback 5)", "white")
+        print_colored("  LLMAPI_API_KEY=your_key            (backup)", "white")
+        print_colored("  APIFREE_API_KEY=your_key           (backup)", "white")
+        sys.exit(1)
+
     # Determine which agents to run
     if args.agent:
         agents_to_run = [args.agent]
     else:
         agents_to_run = ["style", "security", "performance", "logic"]
-    
+
     print_colored("\n🤖 PRPilot - Local Test", "cyan")
     print_colored(f"Agents: {', '.join(agents_to_run)}", "white")
-    
+
+    # Show which LLM providers are loaded (multi-provider fallback chain)
+    if not api_key:
+        try:
+            from agents.llm_client import get_llm_client
+            status = get_llm_client().get_status()
+            print_colored("\n🧩 LLM Fallback Chain:", "magenta")
+            for p in status["providers"]:
+                state = "✅ available" if p["available"] else "❌ unavailable"
+                models = ", ".join(p.get("models", []) or [])
+                print_colored(f"   {p['name']:<12} {state}  ({models})", "white")
+            print_colored("-" * 60, "white")
+        except Exception as e:
+            print_colored(f"⚠️ Could not load LLM client: {e}", "yellow")
+
     # Run async review (api_key can be None for multi-provider mode)
     asyncio.run(run_review(args.file, api_key, agents_to_run))
 

@@ -10,8 +10,9 @@ httpx>=0.25.0
 # Google Gemini (new SDK - free with API key, gemini-2.0-flash)
 google-genai>=1.0.0
 
-# Groq (fallback LLM)
-groq>=0.4.0
+# OpenAI SDK (used for all OpenAI-compatible fallback providers:
+# Groq, Cerebras, OpenRouter, SwiftRouter)
+openai>=1.0.0
 
 # Database
 supabase>=2.0.0
