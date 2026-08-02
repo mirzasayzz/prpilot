@@ -2,6 +2,7 @@
 Supabase database client with encryption helpers for storing API keys securely.
 """
 import os
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from cryptography.fernet import Fernet
 from supabase import create_client, Client
@@ -155,11 +156,11 @@ async def update_review(
 async def get_review_stats(installation_id: str, days: int = 30) -> dict:
     """Get review statistics for an installation."""
     supabase = get_supabase()
-    # Note: For complex aggregations, you might want to use a Supabase function
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
     result = supabase.table("reviews").select("*").eq(
         "installation_id", installation_id
     ).gte(
-        "created_at", f"now() - interval '{days} days'"
+        "created_at", cutoff
     ).execute()
     
     reviews = result.data or []
@@ -170,3 +171,15 @@ async def get_review_stats(installation_id: str, days: int = 30) -> dict:
         "total_issues_found": total_issues,
         "avg_issues_per_review": total_issues / len(reviews) if reviews else 0
     }
+
+
+async def count_reviews_since(installation_id: str, hours: int = 24) -> int:
+    """Count review records for an installation within the last N hours (usage limiting)."""
+    supabase = get_supabase()
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    result = supabase.table("reviews").select("id").eq(
+        "installation_id", installation_id
+    ).gte(
+        "created_at", cutoff
+    ).execute()
+    return len(result.data or [])

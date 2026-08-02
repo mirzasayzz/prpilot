@@ -21,14 +21,47 @@ def _db(fn, *args, **kwargs):
     return asyncio.run(fn(*args, **kwargs))
 
 
-def _store_review_record(installation_id, repo_full_name, pr_number, pr_title, commit_sha):
+# ── Usage limiting ────────────────────────────────────────────────────
+# The app owner (mirzasayzz) is unlimited. Every other installation is
+# capped at FREE_DAILY_LIMIT reviews per day, tracked in Supabase.
+OWNER_LOGINS = {s.strip() for s in os.environ.get("PRPILOT_OWNER_LOGINS", "mirzasayzz").split(",") if s.strip()}
+FREE_DAILY_LIMIT = int(os.environ.get("FREE_DAILY_LIMIT", "25"))
+USAGE_WINDOW_HOURS = int(os.environ.get("USAGE_WINDOW_HOURS", "24"))
+
+
+def _is_owner(account_login: str) -> bool:
+    """True if the installing account is a PRPilot owner (unlimited)."""
+    return (account_login or "").strip().lower() in {o.lower() for o in OWNER_LOGINS}
+
+
+def _usage_allowed(installation_id) -> bool:
+    """Check if this installation is under its daily review cap.
+    Owner installations bypass the limit entirely. Best-effort: if the
+    DB is unreachable, allow the review rather than break the flow.
+    """
+    if not installation_id:
+        return True
+    try:
+        from db.client import count_reviews_since, get_installation
+        inst = _db(get_installation, installation_id)
+        if not inst:
+            return True
+        if _is_owner(inst.get("owner_login", "")):
+            return True
+        used = _db(count_reviews_since, inst["id"], USAGE_WINDOW_HOURS)
+        return used < FREE_DAILY_LIMIT
+    except Exception:
+        # Fail-open: never block reviews because usage tracking is down.
+        return True
+
+
+def _store_review_record(installation_id, account_login, repo_full_name, pr_number, pr_title, commit_sha):
     """Create a pending review record in Supabase. Best-effort: never breaks the flow."""
     try:
         from db.client import create_installation, create_review, get_installation
         inst = _db(get_installation, installation_id)
         if not inst:
-            owner = repo_full_name.split("/")[0] if "/" in repo_full_name else ""
-            _db(create_installation, installation_id, owner)
+            _db(create_installation, installation_id, account_login or "")
             inst = _db(get_installation, installation_id)
         record = _db(create_review, inst["id"], repo_full_name, pr_number, pr_title, commit_sha)
         return record
@@ -256,12 +289,24 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"error": "Missing PR data"}).encode())
             return
         
+        # Who installed the app? (the account that owns this installation)
+        account_login = installation.get("account", {}).get("login", owner)
+        if not _is_owner(account_login) and not _usage_allowed(installation_id):
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "status": "limit_reached",
+                "message": f"Daily review limit ({FREE_DAILY_LIMIT}) reached for this installation. Please try again later or use your own API key."
+            }).encode())
+            return
+
         review_record = None
         try:
             # Store a pending review record in Supabase (best-effort)
             repo_full_name = f"{owner}/{repo_name}"
             review_record = _store_review_record(
-                installation_id, repo_full_name, pr_number,
+                installation_id, account_login, repo_full_name, pr_number,
                 pr.get("title", ""), head_sha
             )
             token = get_github_client(installation_id)

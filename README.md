@@ -249,9 +249,22 @@ vercel env add LLMAPI_API_KEY production       # Backup
 # Symmetric encryption key
 python3 -c "import base64,os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())" | vercel env add ENCRYPTION_KEY production
 
+# Optional usage limiting (protect your LLM quota from other users)
+vercel env add PRPILOT_OWNER_LOGINS production   # Comma-separated unlimited logins (default: mirzasayzz)
+vercel env add FREE_DAILY_LIMIT production        # Daily review cap per non-owner installation (default: 25)
+vercel env add USAGE_WINDOW_HOURS production      # Window in hours for the cap (default: 24)
+
 # Push to edge network
 vercel --prod
 ```
+
+## 🔒 Usage Limiting (security)
+
+PRPilot protects your LLM quota when other users install the app:
+- **Owners** (default: `mirzasayzz`) are **unlimited**.
+- **Every other installation** is capped at `FREE_DAILY_LIMIT` reviews per day (default **25**), counted over `USAGE_WINDOW_HOURS` (default **24h**) in Supabase.
+- When the cap is hit, the webhook returns `limit_reached` and **skips the review** instead of consuming your provider quota.
+- The check is **fail-open**: if the usage DB is unreachable, reviews are allowed rather than blocked.
 
 ---
 
