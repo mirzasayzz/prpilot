@@ -8,8 +8,9 @@ Providers, in fallback order (only those with a configured API key are used):
     3. Cerebras    — OpenAI-compatible (gpt-oss-120b, zai-glm-4.7)
     4. OpenRouter  — OpenAI-compatible, two keys (meta-llama/llama-3.3-70b-instruct:free, ...)
     5. SwiftRouter — OpenAI-compatible (glm-4.7, command-r-08-2024)
-    6. LLMApi.ai   — backup (gpt-4o)
-    7. APIFreeLLM  — backup
+    6. xAI/Grok    — OpenAI-compatible (grok-4, grok-3)
+    7. LLMApi.ai   — backup (gpt-4o)
+    8. APIFreeLLM  — backup
 
 If a provider errors, rate-limits (429), or times out, the next available
 provider automatically takes over — so PRPilot keeps reviewing even when
@@ -467,12 +468,23 @@ class MultiProviderLLM:
                 timeout=90,
             ))
 
-        # 6. LLMApi Backup
+        # 6. xAI / Grok (OpenAI-compatible)
+        xai_key = os.environ.get("XAI_API_KEY", "").strip()
+        if xai_key:
+            self.providers.append(OpenAICompatProvider(
+                name="xai",
+                api_keys=[xai_key],
+                base_url="https://api.x.ai/v1",
+                models=["grok-4", "grok-3"],
+                timeout=90,
+            ))
+
+        # 7. LLMApi Backup
         llmapi_key = os.environ.get("LLMAPI_API_KEY", "").strip()
         if llmapi_key:
             self.providers.append(LLMApiProvider(llmapi_key))
 
-        # 7. APIFree Backup
+        # 8. APIFree Backup
         apifree_key = os.environ.get("APIFREE_API_KEY", "").strip()
         if apifree_key:
             self.providers.append(APIFreeProvider(apifree_key))

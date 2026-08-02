@@ -64,8 +64,9 @@ Never suffer from a `429 Rate Limit` failure again. PRPilot utilizes an intellig
 3. **Cerebras** — `gpt-oss-120b` / `zai-glm-4.7` (OpenAI-compatible).
 4. **OpenRouter ×2 keys** — `:free` tier models, double quota with two keys.
 5. **SwiftRouter** — `glm-4.7` / `command-r-08-2024` (OpenAI-compatible).
-6. **LLMApi** — `gpt-4o` backup.
-7. **APIFreeLLM** — final safety net for 100% review uptime.
+6. **xAI/Grok** — `grok-4` / `grok-3` via `api.x.ai` (OpenAI-compatible).
+7. **LLMApi** — `gpt-4o` backup.
+8. **APIFreeLLM** — final safety net for 100% review uptime.
 
 ### 🌟 Additional Highlights
 - 🚀 **Zero-Config Install** — Install directly from GitHub; it works out of the box.
@@ -98,8 +99,9 @@ export GROQ_API_KEY="your-groq-key"              # Fallback 1
 export CEREBRAS_API_KEY="your-cerebras-key"      # Fallback 2
 export OPENROUTER_API_KEY_1="your-openrouter-key" # Fallback 3 (+ OPENROUTER_API_KEY_2 for double quota)
 export SWIFTROUTER_API_KEY="your-swiftrouter-key" # Fallback 5
-export LLMAPI_API_KEY="your-llmapi-key"          # Backup
-export APIFREE_API_KEY="your-apifree-key"        # Backup 
+export XAI_API_KEY="your-xai-grok-key"            # Fallback 6 (Grok via api.x.ai)
+export LLMAPI_API_KEY="your-llmapi-key"           # Backup
+export APIFREE_API_KEY="your-apifree-key"         # Backup 
 
 # 4. Trigger localized analysis
 python test_local.py test_samples/sample_code.py
@@ -233,8 +235,9 @@ vercel env add CEREBRAS_API_KEY production    # Fallback 2
 vercel env add OPENROUTER_API_KEY_1 production # Fallback 3
 vercel env add OPENROUTER_API_KEY_2 production # Fallback 4 (optional)
 vercel env add SWIFTROUTER_API_KEY production  # Fallback 5
-vercel env add LLMAPI_API_KEY production       # Backup
-vercel env add APIFREE_API_KEY production      # Backup
+vercel env add XAI_API_KEY production           # Fallback 6 (Grok)
+vercel env add LLMAPI_API_KEY production        # Backup
+vercel env add APIFREE_API_KEY production       # Backup
 
 # Symmetric Encryption Key
 python3 -c "import base64,os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())" | vercel env add ENCRYPTION_KEY production
