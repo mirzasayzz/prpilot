@@ -171,8 +171,7 @@ def main():
         "GEMINI_API_KEY", "GEMINI_API_KEYS",
         "GROQ_API_KEY", "CEREBRAS_API_KEY",
         "OPENROUTER_API_KEY_1", "OPENROUTER_API_KEY_2",
-        "SWIFTROUTER_API_KEY",
-        "LLMAPI_API_KEY", "APIFREE_API_KEY",
+        "LLMAPI_API_KEY",
     ]
     configured = [k for k in provider_keys if os.environ.get(k)]
 
@@ -185,9 +184,7 @@ def main():
         print_colored("  CEREBRAS_API_KEY=your_key          (fallback 2)", "white")
         print_colored("  OPENROUTER_API_KEY_1=your_key      (fallback 3)", "white")
         print_colored("  OPENROUTER_API_KEY_2=your_key      (fallback 4)", "white")
-        print_colored("  SWIFTROUTER_API_KEY=your_key       (fallback 5)", "white")
         print_colored("  LLMAPI_API_KEY=your_key            (backup)", "white")
-        print_colored("  APIFREE_API_KEY=your_key           (backup)", "white")
         sys.exit(1)
 
     # Determine which agents to run

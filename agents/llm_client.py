@@ -6,11 +6,8 @@ Providers, in fallback order (only those with a configured API key are used):
     1. Gemini      — multi-key rotation + multi-model (gemini-2.5-flash -> gemini-2.0-flash)
     2. Groq        — OpenAI-compatible (llama-3.3-70b-versatile, openai/gpt-oss-120b)
     3. Cerebras    — OpenAI-compatible (gpt-oss-120b, zai-glm-4.7)
-    4. OpenRouter  — OpenAI-compatible, two keys (meta-llama/llama-3.3-70b-instruct:free, ...)
-    5. SwiftRouter — OpenAI-compatible (glm-4.7, command-r-08-2024)
-    6. xAI/Grok    — OpenAI-compatible (grok-4, grok-3)
-    7. LLMApi.ai   — backup (gpt-4o)
-    8. APIFreeLLM  — backup
+    4. OpenRouter  — OpenAI-compatible, two keys (nemotron-3-super-120b:free, gemma-4-31b:free, gpt-oss-20b:free)
+    5. LLMApi.ai   — backup (gpt-4o)
 
 If a provider errors, rate-limits (429), or times out, the next available
 provider automatically takes over — so PRPilot keeps reviewing even when
@@ -333,58 +330,6 @@ class LLMApiProvider(LLMProvider):
         )
 
 
-class APIFreeProvider(LLMProvider):
-    """APIFreeLLM provider (backup)."""
-
-    def __init__(self, api_key: str, model: str = "apifreellm"):
-        self.api_key = api_key
-        self.model_name = model
-
-    @property
-    def name(self) -> str:
-        return "apifreellm"
-
-    def is_available(self) -> bool:
-        return bool(self.api_key)
-
-    def generate(self, prompt: str) -> LLMResponse:
-        import urllib.request
-        import urllib.error
-        import json
-
-        url = "https://apifreellm.com/api/v1/chat"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}"
-        }
-        data = {
-            "message": prompt,
-            "model": self.model_name
-        }
-
-        req = urllib.request.Request(
-            url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST'
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=90) as response:
-                res_body = response.read().decode('utf-8')
-                res_json = json.loads(res_body)
-        except urllib.error.HTTPError as e:
-            raise Exception(f"HTTP Error: {e.code} {e.reason} - {e.read().decode('utf-8')}")
-        except Exception as e:
-            raise Exception(str(e))
-
-        text = res_json.get("response", "")
-        if not text or not text.strip():
-            raise Exception("Empty response from APIFreeLLM")
-
-        return LLMResponse(
-            text=text,
-            provider="apifreellm",
-            model=res_json.get("model", self.model_name)
-        )
-
-
 class MultiProviderLLM:
     """
     Multi-provider LLM client with automatic fallback.
@@ -458,37 +403,10 @@ class MultiProviderLLM:
                 },
             ))
 
-        # 5. SwiftRouter (OpenAI-compatible)
-        swiftrouter_key = os.environ.get("SWIFTROUTER_API_KEY", "").strip()
-        if swiftrouter_key:
-            self.providers.append(OpenAICompatProvider(
-                name="swiftrouter",
-                api_keys=[swiftrouter_key],
-                base_url="https://api.swiftrouter.com/v1",
-                models=["glm-4.7", "command-r-08-2024"],
-                timeout=90,
-            ))
-
-        # 6. xAI / Grok (OpenAI-compatible)
-        xai_key = os.environ.get("XAI_API_KEY", "").strip()
-        if xai_key:
-            self.providers.append(OpenAICompatProvider(
-                name="xai",
-                api_keys=[xai_key],
-                base_url="https://api.x.ai/v1",
-                models=["grok-4", "grok-3"],
-                timeout=90,
-            ))
-
-        # 7. LLMApi Backup
+        # 5. LLMApi Backup
         llmapi_key = os.environ.get("LLMAPI_API_KEY", "").strip()
         if llmapi_key:
             self.providers.append(LLMApiProvider(llmapi_key))
-
-        # 8. APIFree Backup
-        apifree_key = os.environ.get("APIFREE_API_KEY", "").strip()
-        if apifree_key:
-            self.providers.append(APIFreeProvider(apifree_key))
 
     def generate(self, prompt: str) -> LLMResponse:
         """
