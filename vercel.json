@@ -6,6 +6,10 @@
   ],
   "routes": [
     { "src": "/", "dest": "/public/index.html" },
+    { "src": "/favicon.svg", "dest": "/public/favicon.svg" },
+    { "src": "/logo.svg", "dest": "/public/logo.svg" },
+    { "src": "/privacy.html", "dest": "/public/privacy.html" },
+    { "src": "/terms.html", "dest": "/public/terms.html" },
     { "src": "/config.html", "dest": "/public/config.html" },
     { "src": "/api/webhook", "dest": "/api/webhook.py" },
     { "src": "/api/config", "dest": "/api/config.py" },
