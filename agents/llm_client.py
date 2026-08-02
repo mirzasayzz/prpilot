@@ -447,8 +447,9 @@ class MultiProviderLLM:
                 api_keys=openrouter_keys,
                 base_url="https://openrouter.ai/api/v1",
                 models=[
-                    "meta-llama/llama-3.3-70b-instruct:free",
-                    "openai/gpt-oss-120b:free",
+                    "nvidia/nemotron-3-super-120b-a12b:free",
+                    "google/gemma-4-31b-it:free",
+                    "openai/gpt-oss-20b:free",
                 ],
                 timeout=60,
                 extra_headers={
