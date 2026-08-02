@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — PRPilot</title>
+    <meta name="theme-color" content="#08080b">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #08080b; --surface: #0f0f12;
+            --panel: rgba(255,255,255,0.035); --panel-strong: rgba(255,255,255,0.06);
+            --hairline: rgba(255,255,255,0.08); --hairline-strong: rgba(255,255,255,0.14);
+            --ink: #f2efe6; --ink-secondary: #b0adb8; --ink-muted: #726f7c;
+            --gold: #b8842f; --gold-bright: #e3b862; --gold-soft: rgba(227,184,98,0.14);
+            --font-display: "Instrument Serif", Georgia, serif;
+            --font-sans: "Inter", system-ui, sans-serif;
+            --font-mono: "JetBrains Mono", monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; line-height: 1.7; }
+        ::selection { background: rgba(227,184,98,0.28); color: #fff; }
+        .stage { position: fixed; inset: 0; z-index: -2; background: radial-gradient(1100px 700px at 18% -10%, rgba(227,184,98,0.07), transparent 60%), var(--bg); }
+        .grain { position: fixed; inset: -50%; z-index: 60; pointer-events: none; opacity: 0.45; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); animation: grain-shift 9s steps(8) infinite; }
+        @keyframes grain-shift { 0%{transform:translate(0,0)} 25%{transform:translate(-3%,2%)} 50%{transform:translate(2%,-3%)} 75%{transform:translate(-2%,-2%)} 100%{transform:translate(0,0)} }
+        .wrap { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; position: relative; z-index: 1; }
+        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); margin-bottom: 48px; }
+        .brand img { width: 34px; height: 34px; border-radius: 10px; }
+        .brand .wordmark { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.3px; }
+        .brand .wordmark span { color: var(--gold-bright); }
+        h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.2rem, 5vw, 3rem); letter-spacing: -0.5px; margin-bottom: 12px; }
+        .updated { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 48px; }
+        h2 { font-size: 1.15rem; font-weight: 600; margin: 40px 0 14px; letter-spacing: -0.2px; }
+        p { color: var(--ink-secondary); font-size: 0.95rem; margin-bottom: 14px; font-weight: 300; }
+        ul { color: var(--ink-secondary); font-size: 0.95rem; margin: 0 0 14px 20px; font-weight: 300; }
+        li { margin-bottom: 6px; }
+        .back { display: inline-flex; align-items: center; gap: 8px; color: var(--ink-muted); text-decoration: none; font-size: 0.85rem; margin-top: 48px; transition: color 0.2s; }
+        .back:hover { color: var(--ink); }
+        .card { background: var(--panel); border: 1px solid var(--hairline); border-radius: 18px; padding: 32px; }
+        @media (prefers-reduced-motion: reduce) { .grain { animation: none; } }
+    </style>
+</head>
+<body>
+    <div class="stage" aria-hidden></div>
+    <div class="grain" aria-hidden></div>
+    <div class="wrap">
+        <a href="/" class="brand">
+            <img src="/logo.svg" alt="PRPilot">
+            <span class="wordmark">PR<span>Pilot</span></span>
+        </a>
+        <div class="card">
+            <h1>Privacy Policy</h1>
+            <p class="updated">Last updated · December 28, 2025</p>
+
+            <h2>1. Introduction</h2>
+            <p>PRPilot ("we", "our", "us") provides an automated code review service for GitHub. We are committed to protecting your privacy and the security of your code.</p>
+
+            <h2>2. Data we collect</h2>
+            <p>We collect the minimum data necessary to provide the service:</p>
+            <ul>
+                <li><strong>GitHub metadata</strong> — repository names, PR numbers, commit hashes, file names (to perform reviews).</li>
+                <li><strong>Code content</strong> — we temporarily process the code in your pull requests to generate reviews. We do not store your code.</li>
+                <li><strong>API keys</strong> — if you provide your own Gemini or Groq key, it is stored in an encrypted format.</li>
+                <li><strong>Usage logs</strong> — basic success/failure metrics for debugging.</li>
+            </ul>
+
+            <h2>3. How we use data</h2>
+            <ul>
+                <li>To perform code analysis using large language models (Gemini, Groq, and fallback providers).</li>
+                <li>To post review comments on your GitHub pull requests.</li>
+                <li>To maintain your configuration settings (enabled reviewers, preferences).</li>
+            </ul>
+
+            <h2>4. Data storage &amp; security</h2>
+            <ul>
+                <li><strong>Encryption</strong> — API keys are encrypted at rest using industry-standard Fernet (AES) encryption.</li>
+                <li><strong>No code retention</strong> — your code is sent to the LLM provider for analysis and not retained. We do not train models on your code.</li>
+                <li><strong>Database</strong> — metadata is stored in Supabase (PostgreSQL) with Row Level Security enabled.</li>
+            </ul>
+
+            <h2>5. Third-party services</h2>
+            <p>Reviews are powered by third-party LLM providers (Google Gemini, Groq, and fallbacks). Code snippets are transmitted to those providers solely to generate the review and are not stored by us.</p>
+
+            <h2>6. Contact</h2>
+            <p>For any privacy questions, please open an issue on our <a href="https://github.com/mirzasayzz/prpilot" style="color:var(--gold-bright)">GitHub repository</a>.</p>
+
+            <a href="/" class="back">← Back to home</a>
+        </div>
+    </div>
+</body>
+</html>

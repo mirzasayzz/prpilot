@@ -1,11 +1,16 @@
 <p align="center">
-  <img src="public/logo.png" alt="PRPilot Logo" width="120" height="120" style="border-radius:20%">
+  <img src="public/logo.svg" alt="PRPilot Logo" width="110" height="110">
 </p>
 
-<h1 align="center">PRPilot — Enterprise AI Code Reviewer</h1>
+<h1 align="center">PRPilot — AI Code Reviews for GitHub</h1>
 
 <p align="center">
-  <strong>Automated, zero-downtime AI code reviews delivered instantly to your GitHub Pull Requests.</strong>
+  <strong>Automated, multi-model AI code reviews delivered instantly to your GitHub Pull Requests. Free forever.</strong>
+</p>
+
+<p align="center">
+  <a href="https://prpilot-one.vercel.app" target="_blank">🌐 Live App</a> •
+  <a href="https://github.com/apps/prpilot-mirzasayzz" target="_blank">🤖 Install the GitHub App</a>
 </p>
 
 <p align="center">
@@ -20,19 +25,20 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white" alt="Python Version">
-  <img src="https://img.shields.io/badge/Architecture-Serverless-000000?logo=vercel&logoColor=white" alt="Vercel">
-  <img src="https://img.shields.io/badge/Integration-GitHub_Auto-181717?logo=github&logoColor=white" alt="Platform">
-  <img src="https://img.shields.io/badge/AI_Engine-Multi--Model_Routing-4285F4?logo=google&logoColor=white" alt="AI Model">
-  <img src="https://img.shields.io/badge/Status-Highly_Available-2EA043?style=flat" alt="High Availability">
+  <img src="https://img.shields.io/badge/Platform-Vercel_Serverless-000000?logo=vercel&logoColor=white" alt="Vercel">
+  <img src="https://img.shields.io/badge/GitHub-App-181717?logo=github&logoColor=white" alt="GitHub App">
+  <img src="https://img.shields.io/badge/AI-Multi--Model_Failover-e3b862?logo=google&logoColor=white" alt="AI Multi-Model">
+  <img src="https://img.shields.io/badge/Database-Supabase-3ecf8e?logo=supabase&logoColor=white" alt="Supabase">
+  <img src="https://img.shields.io/badge/License-MIT-2EA043?logo=open-source-initiative&logoColor=white" alt="MIT License">
 </p>
 
 ---
 
 ## 🎯 What is PRPilot?
 
-**PRPilot** is an industry-grade GitHub App that brings a highly available, AI-powered team of security researchers, logic validators, and performance architects directly into your CI/CD pipeline. 
+**PRPilot** is a production-ready GitHub App that brings a highly available, AI-powered team of security researchers, logic validators, and performance architects directly into your CI/CD pipeline.
 
-The moment you open a Pull Request, PRPilot analyzes the code diff concurrently across **4 specialized analysis agents**. It uses an advanced **Multi-LLM Routing architecture** to ensure reviews never fail due to rate limits or API outages. Combining Google Gemini 2.0 Flash with automated fallbacks to OpenAI's GPT-4o architecture via LLMApi and APIFreeLLM, this tool provides relentless code coverage.
+The moment you open a Pull Request, PRPilot analyzes the code diff across **4 specialized analysis agents** and posts a categorized review — critical, warning, and passing checks — directly on your PR. An advanced **Multi-LLM failover chain** (Gemini → Groq → Cerebras → OpenRouter → LLMApi) ensures reviews never fail due to rate limits or API outages.
 
 ---
 
@@ -58,18 +64,21 @@ PRPilot avoids generic LLM responses by breaking reviews down into strict concur
 | 🧠 **Logic & Bounds** | Edge cases, unhandled nulls, missing try-catches, logic regressions |
 
 ### 🔄 Multi-LLM High-Availability Architecture
-Never suffer from a `429 Rate Limit` failure again. PRPilot utilizes an intelligent automatic fallback chain — if any provider errors, rate-limits, or times out, the next one takes over:
-1. **Multi-Key Gemini Rotation** — rotates through Gemini keys and models (`gemini-2.5-flash` -> `gemini-2.0-flash`).
-2. **Groq** — `llama-3.3-70b-versatile` / `openai/gpt-oss-120b` (OpenAI-compatible).
-3. **Cerebras** — `gpt-oss-120b` / `zai-glm-4.7` (OpenAI-compatible).
+Never suffer from a `429 Rate Limit` failure again. PRPilot uses an automatic fallback chain — if any provider errors, rate-limits, or times out, the next one takes over:
+1. **Gemini** — `gemini-2.5-flash`, multi-key rotation via `GEMINI_API_KEYS`.
+2. **Groq** — `llama-3.3-70b-versatile` (OpenAI-compatible).
+3. **Cerebras** — `gpt-oss-120b` (OpenAI-compatible).
 4. **OpenRouter ×2 keys** — `:free` tier models, double quota with two keys.
 5. **LLMApi** — `gpt-4o` backup.
 
+Every provider is live-tested before shipping; non-responding providers are skipped automatically with zero downtime.
+
 ### 🌟 Additional Highlights
 - 🚀 **Zero-Config Install** — Install directly from GitHub; it works out of the box.
-- 🔐 **Military-Grade Security** — API keys are encrypted at rest with AES-256 and only decrypted momentarily during ephemeral runtime.
-- 🌐 **Polyglot Parsing** — Native support for Python, JS/TS, Go, Rust, Java, C++, and more.
-- ⚡ **Serverless Delivery** — Delivered via Vercel Edge scaling. Reviews post within 10–30 seconds.
+- 🔐 **Encrypted Secrets** — API keys are encrypted at rest with Fernet (AES) and decrypted only momentarily at runtime.
+- 🗄️ **Review History** — Every review is stored in Supabase for analytics (files reviewed, issues found).
+- 🌐 **Polyglot Parsing** — Native support for Python, JS/TS, Go, Java, C++, and more.
+- ⚡ **Serverless Delivery** — Delivered on Vercel. Reviews post within 10–30 seconds.
 
 ---
 
@@ -87,15 +96,20 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# 3. Secure your secrets locally — copy .env.example to .env.local and fill in keys
-#    (PRPilot follows the same .env.local convention as InvestIQ)
-# Full automatic fallback chain — set at least ONE key:
-#   Gemini -> Groq -> Cerebras -> OpenRouter -> SwiftRouter -> LLMApi -> APIFree
-export GEMINI_API_KEY="your-gemini-key"          # Primary (multi-key via GEMINI_API_KEYS also supported)
-export GROQ_API_KEY="your-groq-key"              # Fallback 1
-export CEREBRAS_API_KEY="your-cerebras-key"      # Fallback 2
-export OPENROUTER_API_KEY_1="your-openrouter-key" # Fallback 3 (+ OPENROUTER_API_KEY_2 for double quota)
-export LLMAPI_API_KEY="your-llmapi-key"           # Backup 
+# 3. Secure your secrets locally — copy .env.example to .env and fill in keys
+export GEMINI_API_KEY="your-gemini-key"            # Primary (multi-key via GEMINI_API_KEYS also supported)
+export GROQ_API_KEY="your-groq-key"                # Fallback 1
+export CEREBRAS_API_KEY="your-cerebras-key"        # Fallback 2
+export OPENROUTER_API_KEY_1="your-openrouter-key"  # Fallback 3 (+ OPENROUTER_API_KEY_2 for double quota)
+export LLMAPI_API_KEY="your-llmapi-key"            # Backup
+
+# GitHub App + Supabase (required for live PR reviews)
+export GITHUB_APP_ID="your-app-id"
+export GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----"
+export GITHUB_WEBHOOK_SECRET="your-webhook-secret"
+export SUPABASE_URL="https://your-project.supabase.co"
+export SUPABASE_SERVICE_KEY="your-service-role-key"
+export ENCRYPTION_KEY="your-32-byte-fernet-key"
 
 # 4. Trigger localized analysis
 python test_local.py test_samples/sample_code.py
@@ -128,9 +142,9 @@ Agents: style, security, performance, logic
 1. Navigate to: **[github.com/apps/prpilot-mirzasayzz](https://github.com/apps/prpilot-mirzasayzz)**
 2. Click **Install**.
 3. Choose to install on `All Repositories` or specific targets.
-4. **Done.** Pushing to a Pull Request will automatically trigger the webhook.
+4. **Done.** Opening or updating a Pull Request automatically triggers the review.
 
-> 📖 See the **[Testing Guide](docs/TESTING_GUIDE.md)** for detailed CI/CD verification workflows.
+> 📖 See the **[Testing Guide](docs/TESTING_GUIDE.md)** for detailed verification workflows.
 
 ---
 
@@ -215,22 +229,24 @@ Deploying the architecture to your own infrastructure requires Vercel and Supaba
 # Vercel Configuration
 vercel login && vercel link
 
-# Map robust multi-provider configuration
+# GitHub App + webhook
 vercel env add GITHUB_APP_ID production
 vercel env add GITHUB_PRIVATE_KEY production
 vercel env add GITHUB_WEBHOOK_SECRET production
+
+# Supabase (review history)
 vercel env add SUPABASE_URL production
 vercel env add SUPABASE_SERVICE_KEY production
 
-# High-Availability LLM Configuration (full fallback chain)
-vercel env add GEMINI_API_KEYS production     # Comma-separated (primary)
-vercel env add GROQ_API_KEY production        # Fallback 1
-vercel env add CEREBRAS_API_KEY production    # Fallback 2
+# Multi-model LLM failover chain
+vercel env add GEMINI_API_KEYS production      # Comma-separated (primary)
+vercel env add GROQ_API_KEY production         # Fallback 1
+vercel env add CEREBRAS_API_KEY production     # Fallback 2
 vercel env add OPENROUTER_API_KEY_1 production # Fallback 3
 vercel env add OPENROUTER_API_KEY_2 production # Fallback 4 (optional)
-vercel env add LLMAPI_API_KEY production        # Backup
+vercel env add LLMAPI_API_KEY production       # Backup
 
-# Symmetric Encryption Key
+# Symmetric encryption key
 python3 -c "import base64,os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())" | vercel env add ENCRYPTION_KEY production
 
 # Push to edge network

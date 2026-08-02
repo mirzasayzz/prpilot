@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e3b862"/>
+      <stop offset="100%" stop-color="#b8842f"/>
+    </linearGradient>
+    <linearGradient id="darkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#131316"/>
+      <stop offset="100%" stop-color="#0b0b0e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded tile -->
+  <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#darkGrad)"/>
+  <rect x="26" y="26" width="460" height="460" rx="110" fill="none" stroke="url(#goldGrad)" stroke-width="6" opacity="0.55"/>
+
+  <!-- Subtle inner glow -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#goldGrad)" stroke-width="2" opacity="0.18"/>
+
+  <!-- PR mark: pull-request icon composed of circles + connector -->
+  <g transform="translate(256,256)">
+    <!-- vertical connector line -->
+    <line x1="0" y1="-118" x2="0" y2="104" stroke="url(#goldGrad)" stroke-width="26" stroke-linecap="round" opacity="0.9"/>
+    <!-- branch connector -->
+    <path d="M0 34 C 0 78, 66 84, 66 122" fill="none" stroke="url(#goldGrad)" stroke-width="26" stroke-linecap="round" opacity="0.9"/>
+    <!-- top node (base) -->
+    <circle cx="0" cy="-118" r="48" fill="#0b0b0e" stroke="url(#goldGrad)" stroke-width="22"/>
+    <!-- right node (head) -->
+    <circle cx="66" cy="146" r="48" fill="#0b0b0e" stroke="url(#goldGrad)" stroke-width="22"/>
+    <!-- bottom node (merge point) -->
+    <circle cx="0" cy="128" r="48" fill="#0b0b0e" stroke="url(#goldGrad)" stroke-width="22"/>
+  </g>
+
+  <!-- Sparkle accents -->
+  <circle cx="392" cy="128" r="9" fill="#e3b862" opacity="0.9"/>
+  <circle cx="118" cy="392" r="6" fill="#e3b862" opacity="0.6"/>
+</svg>
