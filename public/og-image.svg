@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="PRPilot social preview">
+  <title>PRPilot: AI code reviews for GitHub pull requests</title>
+  <rect width="1200" height="630" fill="#08080b"/>
+  <rect x="60" y="60" width="120" height="120" rx="28" fill="#0f0f12" stroke="#e3b862" stroke-opacity="0.4" stroke-width="2"/>
+  <g fill="none" stroke="#e3b862" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M108 152 V92"/>
+    <path d="M108 122 L148 86"/>
+    <path d="M108 138 L136 112"/>
+  </g>
+  <circle cx="108" cy="84" r="10" fill="#e3b862"/>
+  <circle cx="152" cy="82" r="10" fill="#b8842f"/>
+  <circle cx="140" cy="110" r="8" fill="#e3b862"/>
+  <circle cx="108" cy="158" r="10" fill="#e3b862"/>
+  <text x="210" y="142" font-family="Inter, system-ui, sans-serif" font-size="64" font-weight="600" letter-spacing="-1" fill="#f2efe6">PR<tspan fill="#e3b862">Pilot</tspan></text>
+  <text x="60" y="280" font-family="Georgia, serif" font-size="72" fill="#f2efe6">Every pull request,</text>
+  <text x="60" y="360" font-family="Georgia, serif" font-style="italic" font-size="72" fill="#e3b862">reviewed by experts.</text>
+  <text x="60" y="440" font-family="Inter, system-ui, sans-serif" font-size="30" fill="#b0adb8">Four AI agents. Free to install. Bring your own key.</text>
+  <text x="60" y="490" font-family="Inter, system-ui, sans-serif" font-size="30" fill="#b0adb8">25 reviews a day for non-owner installations.</text>
+  <text x="60" y="570" font-family="monospace" font-size="24" letter-spacing="2" fill="#a3a0ad">PRPILOT-ONE.VERCEL.APP</text>
+</svg>

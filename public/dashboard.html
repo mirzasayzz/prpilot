@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRPilot Dashboard</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0d0d0f; color: #f2ede4; line-height: 1.5; }
+  a { color: #e3b862; }
+  a:focus-visible, button:focus-visible { outline: 3px solid #e3b862; outline-offset: 2px; }
+  .skip-link { position: absolute; left: -9999px; top: 0; background: #e3b862; color: #111; padding: 0.5rem 1rem; font-weight: 700; }
+  .skip-link:focus { left: 0.5rem; top: 0.5rem; }
+  header { border-bottom: 1px solid #2a2418; padding: 1rem 1.25rem; }
+  header h1 { margin: 0; font-size: 1.5rem; color: #e3b862; }
+  header p { margin: 0.25rem 0 0; color: #b8b0a0; }
+  main { max-width: 900px; margin: 0 auto; padding: 1.25rem; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .card { background: #17171a; border: 1px solid #2a2418; border-radius: 10px; padding: 1rem; }
+  .card h2 { margin: 0 0 0.25rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: #b8b0a0; }
+  .card p { margin: 0; font-size: 1.25rem; font-weight: 700; }
+  .card small { color: #b8b0a0; font-size: 0.9rem; font-weight: 400; }
+  table { width: 100%; border-collapse: collapse; background: #17171a; border: 1px solid #2a2418; border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid #2a2418; }
+  th { color: #e3b862; font-size: 0.9rem; }
+  .state { background: #17171a; border: 1px solid #2a2418; border-radius: 10px; padding: 1.25rem; }
+  .error { border-color: #7a2e2e; }
+  nav { margin-top: 1.5rem; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to dashboard content</a>
+<header>
+  <h1>PRPilot Dashboard</h1>
+  <p>Read-only review history for your installation.</p>
+</header>
+<main id="main">
+  <p id="status" aria-live="polite">Loading your dashboard.</p>
+  <section id="summary" hidden>
+    <div class="cards">
+      <div class="card"><h2>Owner</h2><p id="owner">-</p></div>
+      <div class="card"><h2>Status</h2><p id="enabled">-</p></div>
+      <div class="card"><h2>Provider</h2><p id="provider">-</p></div>
+      <div class="card"><h2>Quota today</h2><p id="quota">-</p><small id="quota-note"></small></div>
+    </div>
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h2>Review toggles</h2>
+      <p id="toggles" style="font-size: 1rem; font-weight: 400;">-</p>
+    </div>
+  </section>
+  <section id="reviews-section" hidden>
+    <h2>Recent reviews</h2>
+    <div id="empty" class="state" hidden><p>No reviews yet. Open a pull request.</p></div>
+    <table id="reviews-table" hidden>
+      <thead>
+        <tr><th scope="col">Repository</th><th scope="col">PR</th><th scope="col">Files</th><th scope="col">Issues</th><th scope="col">Status</th></tr>
+      </thead>
+      <tbody id="reviews-body"></tbody>
+    </table>
+  </section>
+  <div id="error" class="state error" hidden>
+    <p>Could not load the dashboard. Your config link may have expired (links last 1 hour). Reinstall or reopen the config page from a fresh install redirect, then try again.</p>
+  </div>
+  <nav><p><a href="/config.html" id="config-link">Open configuration</a> &middot; <a href="/">Back to home</a></p></nav>
+</main>
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get("config_token") || "";
+  var statusEl = document.getElementById("status");
+  var errorEl = document.getElementById("error");
+  var configLink = document.getElementById("config-link");
+  if (token) {
+    configLink.href = "/config.html?config_token=" + encodeURIComponent(token);
+  }
+  if (!token) {
+    statusEl.textContent = "No config link found. Open this page from a fresh install redirect.";
+    errorEl.hidden = false;
+    return;
+  }
+  fetch("/api/dashboard?config_token=" + encodeURIComponent(token), {
+    headers: { "Accept": "application/json" }
+  }).then(function (resp) {
+    if (!resp.ok) { throw new Error("Request failed"); }
+    return resp.json();
+  }).then(function (data) {
+    statusEl.textContent = "Dashboard loaded.";
+    document.getElementById("summary").hidden = false;
+    document.getElementById("reviews-section").hidden = false;
+    document.getElementById("owner").textContent = data.owner || "Unknown";
+    document.getElementById("enabled").textContent = data.enabled ? "Enabled" : "Disabled";
+    document.getElementById("provider").textContent = data.llm_provider || "Not set";
+    var quota = data.quota || {};
+    if (quota.unlimited) {
+      document.getElementById("quota").textContent = "Unlimited";
+      document.getElementById("quota-note").textContent = "Owner installation";
+    } else if (quota.used === null || quota.used === undefined) {
+      document.getElementById("quota").textContent = "Unavailable";
+      document.getElementById("quota-note").textContent = "Quota could not be checked";
+    } else {
+      document.getElementById("quota").textContent = quota.used + " of " + quota.limit;
+      document.getElementById("quota-note").textContent = quota.remaining + " remaining today";
+    }
+    var s = data.settings || {};
+    var on = [];
+    if (s.review_style) { on.push("Style"); }
+    if (s.review_security) { on.push("Security"); }
+    if (s.review_performance) { on.push("Performance"); }
+    if (s.review_logic) { on.push("Logic"); }
+    document.getElementById("toggles").textContent =
+      (on.length ? on.join(", ") : "No review types enabled") +
+      (s.auto_approve ? " | Auto approve: on" : " | Auto approve: off");
+    var reviews = data.recent_reviews || [];
+    if (!reviews.length) {
+      document.getElementById("empty").hidden = false;
+    } else {
+      var tbody = document.getElementById("reviews-body");
+      reviews.forEach(function (r) {
+        var tr = document.createElement("tr");
+        var cells = [r.repo_full_name || "", r.pr_number, r.files_reviewed, r.issues_found, r.status || ""];
+        cells.forEach(function (value, index) {
+          var td = document.createElement("td");
+          if (index === 1 && r.pr_number) {
+            var link = document.createElement("a");
+            link.href = "https://github.com/" + r.repo_full_name + "/pull/" + r.pr_number;
+            link.textContent = "#" + r.pr_number + (r.pr_title ? ": " + r.pr_title : "");
+            td.appendChild(link);
+          } else {
+            td.textContent = (value === null || value === undefined) ? "-" : value;
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      document.getElementById("reviews-table").hidden = false;
+    }
+  }).catch(function () {
+    statusEl.textContent = "Could not load the dashboard.";
+    errorEl.hidden = false;
+  });
+})();
+</script>
+</body>
+</html>

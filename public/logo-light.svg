@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="PRPilot logo, light version">
+  <title>PRPilot logo on a light background</title>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="#f2efe6"/>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="none" stroke="#08080b" stroke-opacity="0.08" stroke-width="4"/>
+  <g fill="none" stroke="#08080b" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M190 360 V190"/>
+    <path d="M190 260 L320 150"/>
+    <path d="M190 320 L300 240"/>
+  </g>
+  <circle cx="190" cy="170" r="26" fill="#e3b862"/>
+  <circle cx="332" cy="140" r="26" fill="#b8842f"/>
+  <circle cx="314" cy="232" r="22" fill="#08080b"/>
+  <circle cx="190" cy="376" r="26" fill="#08080b"/>
+  <g fill="#e3b862">
+    <path d="M388 316 l10 26 26 10 -26 10 -10 26 -10 -26 -26 -10 26 -10 z"/>
+    <path d="M108 108 l7 18 18 7 -18 7 -7 18 -7 -18 -18 -7 18 -7 z"/>
+  </g>
+</svg>

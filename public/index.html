@@ -3,19 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRPilot — AI Code Reviews for GitHub Pull Requests</title>
-    <meta name="description" content="PRPilot automatically reviews your GitHub Pull Requests with AI. Catch bugs, security flaws, and performance issues before they ship. Free forever.">
+    <title>PRPilot: AI Code Reviews for GitHub Pull Requests</title>
+    <meta name="description" content="PRPilot automatically reviews your GitHub pull requests with AI. Catch bugs, security flaws, and performance issues before they ship. Free to install, with your own API key and a daily review cap for non-owner installations.">
     <meta name="theme-color" content="#08080b">
-    <meta property="og:title" content="PRPilot — AI Code Reviews for GitHub">
-    <meta property="og:description" content="Four specialized AI agents review every pull request. Bugs, security, performance, logic — caught before they ship.">
+    <link rel="canonical" href="https://prpilot-one.vercel.app/">
+    <meta property="og:title" content="PRPilot: AI Code Reviews for GitHub">
+    <meta property="og:description" content="Four specialized AI agents review every pull request. Bugs, security, performance, logic: caught before they ship.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://prpilot-one.vercel.app">
+    <meta property="og:url" content="https://prpilot-one.vercel.app/">
+    <meta property="og:site_name" content="PRPilot">
+    <meta property="og:image" content="https://prpilot-one.vercel.app/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PRPilot: AI code reviews for GitHub pull requests">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="PRPilot: AI Code Reviews for GitHub">
+    <meta name="twitter:description" content="Four specialized AI agents review every pull request. Bugs, security, performance, logic: caught before they ship.">
+    <meta name="twitter:image" content="https://prpilot-one.vercel.app/og-image.png">
+    <meta name="twitter:image:alt" content="PRPilot: AI code reviews for GitHub pull requests">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* ── PRPilot design tokens (InvestIQ-inspired) ── */
         :root {
             --bg: #08080b;
             --surface: #0f0f12;
@@ -25,20 +37,19 @@
             --hairline-strong: rgba(255, 255, 255, 0.14);
             --ink: #f2efe6;
             --ink-secondary: #b0adb8;
-            --ink-muted: #726f7c;
+            --ink-muted: #a3a0ad;
             --gold: #b8842f;
             --gold-bright: #e3b862;
             --gold-soft: rgba(227, 184, 98, 0.14);
-            --bull: #27a86f;
-            --bull-bright: #43d492;
-            --bear: #d94f4f;
-            --bear-bright: #f07a7a;
+            --success: #27a86f;
+            --success-bright: #43d492;
+            --danger: #d94f4f;
+            --danger-bright: #f07a7a;
             --info: #7d8fd6;
             --font-display: "Instrument Serif", Georgia, serif;
             --font-sans: "Inter", system-ui, sans-serif;
             --font-mono: "JetBrains Mono", monospace;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
@@ -50,14 +61,26 @@
             -webkit-font-smoothing: antialiased;
         }
         ::selection { background: rgba(227, 184, 98, 0.28); color: #fff; }
-
-        /* scrollbars */
+        a:focus-visible, button:focus-visible {
+            outline: 3px solid var(--gold-bright);
+            outline-offset: 3px;
+            border-radius: 6px;
+        }
+        .skip-link {
+            position: absolute; left: 16px; top: -100px; z-index: 200;
+            background: var(--gold-bright); color: #0c0a05;
+            padding: 10px 18px; border-radius: 999px;
+            font-weight: 600; text-decoration: none;
+        }
+        .skip-link:focus { top: 14px; }
+        .visually-hidden {
+            position: absolute; width: 1px; height: 1px;
+            overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+        }
         * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.14) transparent; }
         *::-webkit-scrollbar { width: 6px; height: 6px; }
         *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 999px; }
         *::-webkit-scrollbar-track { background: transparent; }
-
-        /* ambient stage */
         .stage {
             position: fixed; inset: 0; z-index: -2;
             background:
@@ -72,8 +95,6 @@
             animation: grain-shift 9s steps(8) infinite;
         }
         @keyframes grain-shift { 0%{transform:translate(0,0)} 25%{transform:translate(-3%,2%)} 50%{transform:translate(2%,-3%)} 75%{transform:translate(-2%,-2%)} 100%{transform:translate(0,0)} }
-
-        /* glass */
         .glass {
             background: var(--panel);
             border: 1px solid var(--hairline);
@@ -86,7 +107,6 @@
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
         }
-
         .microlabel {
             font-family: var(--font-mono);
             font-size: 10px;
@@ -94,10 +114,7 @@
             text-transform: uppercase;
             color: var(--ink-muted);
         }
-
         .serif { font-family: var(--font-display); }
-
-        /* ── NAV ── */
         nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
             display: flex; align-items: center; justify-content: space-between;
@@ -120,7 +137,13 @@
             font-size: 0.88rem; font-weight: 500; transition: color 0.2s;
         }
         .nav-links a:hover { color: var(--ink); }
-
+        .nav-toggle {
+            display: none;
+            background: transparent; border: 1px solid var(--hairline-strong);
+            color: var(--ink); border-radius: 10px; padding: 9px 14px;
+            font-size: 0.88rem; font-weight: 600; cursor: pointer;
+            font-family: var(--font-sans);
+        }
         .btn-gold {
             display: inline-flex; align-items: center; gap: 9px;
             padding: 11px 22px; border-radius: 999px;
@@ -141,8 +164,6 @@
         }
         .btn-ghost:hover { border-color: rgba(227,184,98,0.4); color: var(--ink); }
         .btn-gold svg, .btn-ghost svg { flex-shrink: 0; }
-
-        /* ── HERO ── */
         .hero {
             position: relative; z-index: 1;
             min-height: 100vh;
@@ -165,7 +186,6 @@
             animation: pulse-dot 1.4s ease-in-out infinite;
         }
         @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.8)} }
-
         .hero h1 {
             font-family: var(--font-display);
             font-weight: 400;
@@ -175,18 +195,13 @@
             max-width: 920px;
             margin-bottom: 28px;
         }
-        .hero h1 em {
-            font-style: italic;
-            color: var(--gold-bright);
-        }
+        .hero h1 em { font-style: italic; color: var(--gold-bright); }
         .hero-desc {
             font-size: 1.12rem; color: var(--ink-secondary);
             max-width: 560px; line-height: 1.75; font-weight: 300;
             margin-bottom: 44px;
         }
         .hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 84px; }
-
-        /* stats */
         .stats-bar { display: flex; gap: 64px; justify-content: center; flex-wrap: wrap; }
         .stat { text-align: center; }
         .stat-value {
@@ -198,8 +213,6 @@
             font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
             color: var(--ink-muted);
         }
-
-        /* ── PR PREVIEW ── */
         .pr-preview { position: relative; z-index: 1; max-width: 720px; margin: 0 auto 100px; padding: 0 24px; }
         .pr-card {
             background: var(--surface);
@@ -244,11 +257,9 @@
             font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
             padding: 3px 9px; border-radius: 999px; margin-top: 1px;
         }
-        .tag-critical { background: rgba(217,79,79,0.18); color: var(--bear-bright); }
+        .tag-critical { background: rgba(217,79,79,0.18); color: var(--danger-bright); }
         .tag-warn { background: rgba(227,184,98,0.18); color: var(--gold-bright); }
-        .tag-pass { background: rgba(39,168,111,0.18); color: var(--bull-bright); }
-
-        /* ── SECTIONS ── */
+        .tag-pass { background: rgba(39,168,111,0.18); color: var(--success-bright); }
         .section { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 100px 24px; }
         .section-label { text-align: center; margin-bottom: 18px; }
         .section-title {
@@ -261,7 +272,6 @@
             font-size: 1.05rem; max-width: 540px; margin: 0 auto 64px;
             line-height: 1.75; font-weight: 300;
         }
-
         .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
         .feature-card {
             background: var(--panel);
@@ -284,7 +294,8 @@
         }
         .feature-icon svg { width: 22px; height: 22px; }
         .feature-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.2px; }
-        .feature-card p { font-size: 0.87rem; color: var(--ink-muted); line-height: 1.65; }
+        .feature-card p { font-size: 0.92rem; color: var(--ink-secondary); line-height: 1.65; }
+        .feature-card ul { margin: 14px 0 0 18px; color: var(--ink-secondary); font-size: 0.92rem; line-height: 1.7; }
         .feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
         .feature-tag {
             font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.06em;
@@ -292,8 +303,6 @@
             background: rgba(255,255,255,0.04); border: 1px solid var(--hairline);
             color: var(--ink-muted);
         }
-
-        /* steps */
         .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; margin-top: 60px; }
         .step { text-align: center; }
         .step-number {
@@ -306,9 +315,14 @@
             color: var(--gold-bright);
         }
         .step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 10px; }
-        .step p { font-size: 0.86rem; color: var(--ink-muted); line-height: 1.65; max-width: 260px; margin: 0 auto; }
-
-        /* CTA */
+        .step p { font-size: 0.9rem; color: var(--ink-secondary); line-height: 1.65; max-width: 260px; margin: 0 auto; }
+        .faq { max-width: 720px; margin: 0 auto; text-align: left; }
+        .faq details {
+            background: var(--panel); border: 1px solid var(--hairline);
+            border-radius: 14px; padding: 20px 24px; margin-bottom: 12px;
+        }
+        .faq summary { font-weight: 600; cursor: pointer; font-size: 0.98rem; }
+        .faq p { color: var(--ink-secondary); font-size: 0.92rem; line-height: 1.7; margin-top: 12px; }
         .cta-section { position: relative; z-index: 1; text-align: center; padding: 60px 24px 110px; }
         .cta-box {
             max-width: 700px; margin: 0 auto;
@@ -331,11 +345,9 @@
             width: 18px; height: 18px; border-radius: 50%;
             background: rgba(39,168,111,0.14); border: 1px solid rgba(39,168,111,0.35);
             display: flex; align-items: center; justify-content: center;
-            color: var(--bull-bright); flex-shrink: 0;
+            color: var(--success-bright); flex-shrink: 0;
         }
         .perk-check svg { width: 10px; height: 10px; }
-
-        /* footer */
         footer {
             position: relative; z-index: 1;
             border-top: 1px solid var(--hairline);
@@ -348,19 +360,22 @@
         .footer-links a { color: var(--ink-muted); text-decoration: none; font-size: 0.84rem; transition: color 0.2s; }
         .footer-links a:hover { color: var(--ink); }
         .footer-copy { color: var(--ink-muted); font-size: 0.78rem; }
-
         .divider { position: relative; z-index: 1; height: 1px; max-width: 1080px; margin: 0 auto; background: linear-gradient(90deg, transparent, var(--hairline-strong), transparent); }
-
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
         .float { animation: float 5s ease-in-out infinite; }
-
         @media (prefers-reduced-motion: reduce) {
             .grain { animation: none; }
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
         @media (max-width: 640px) {
-            nav { padding: 14px 20px; }
-            .nav-links { display: none; }
+            nav { padding: 14px 20px; flex-wrap: wrap; }
+            .nav-toggle { display: inline-block; }
+            .nav-links {
+                display: none;
+                width: 100%; flex-direction: column; align-items: flex-start;
+                gap: 18px; padding: 18px 0 6px;
+            }
+            .nav-links.open { display: flex; }
             .steps { grid-template-columns: 1fr; }
             .cta-box { padding: 44px 26px; }
             footer { flex-direction: column; text-align: center; justify-content: center; }
@@ -369,57 +384,56 @@
     </style>
 </head>
 <body>
-    <div class="stage" aria-hidden></div>
-    <div class="grain" aria-hidden></div>
-
-    <!-- NAV -->
-    <nav>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="stage" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <nav aria-label="Primary">
         <a href="/" class="nav-logo">
             <img src="/logo.svg" alt="PRPilot logo">
             <span class="wordmark">PR<span>Pilot</span></span>
         </a>
-        <div class="nav-links">
+        <button class="nav-toggle" type="button" id="nav-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
+        <div class="nav-links" id="nav-links">
             <a href="#features">Features</a>
             <a href="#how-it-works">How it works</a>
+            <a href="#limits">Limits</a>
+            <a href="#faq">FAQ</a>
             <a href="https://github.com/mirzasayzz/prpilot" target="_blank" rel="noopener">Source</a>
             <a href="https://github.com/apps/prpilot-mirzasayzz" class="btn-gold" id="nav-install-btn">Install free</a>
         </div>
+        <p id="nav-status" class="visually-hidden" aria-live="polite"></p>
     </nav>
-
-    <!-- HERO -->
+    <main id="main">
     <section class="hero">
-        <div class="hero-badge"><span class="dot"></span> AI code review · free forever</div>
+        <div class="hero-badge"><span class="dot" aria-hidden="true"></span> AI code review, free to install</div>
         <h1>Every pull request,<br>reviewed by <em>experts.</em></h1>
         <p class="hero-desc">
-            PRPilot runs four specialized AI agents on every pull request — catching bugs, security holes,
+            PRPilot runs four specialized AI agents on every pull request, catching bugs, security holes,
             performance traps, and logic errors before they ever reach production.
         </p>
         <div class="hero-buttons">
             <a href="https://github.com/apps/prpilot-mirzasayzz" class="btn-gold" id="hero-install-btn" style="padding:14px 30px;font-size:0.95rem;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6C20.6 21.8 24 17.3 24 12c0-6.6-5.4-12-12-12z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6C20.6 21.8 24 17.3 24 12c0-6.6-5.4-12-12-12z"/></svg>
                 Install on GitHub
             </a>
             <a href="https://github.com/mirzasayzz/prpilot" class="btn-ghost" target="_blank" rel="noopener" style="padding:14px 30px;font-size:0.95rem;">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 00-.9-2.4c3-.3 6.2-1.5 6.2-6.7a5.2 5.2 0 00-1.4-3.6 5 5 0 00-.1-3.6s-1.2-.4-3.8 1.4a13 13 0 00-7 0C6.3 3.7 5.1 4.1 5.1 4.1a5 5 0 00-.1 3.6A5.2 5.2 0 003.6 11c0 5.2 3.1 6.4 6.1 6.7a3.4 3.4 0 00-.9 2.4V22"/></svg>
                 View source
             </a>
         </div>
         <div class="stats-bar">
             <div class="stat"><div class="stat-value">4</div><div class="stat-label">AI agents</div></div>
-            <div class="stat"><div class="stat-value">100%</div><div class="stat-label">Free</div></div>
-            <div class="stat"><div class="stat-value">&lt;30s</div><div class="stat-label">Review time</div></div>
-            <div class="stat"><div class="stat-value">∞</div><div class="stat-label">Pull requests</div></div>
+            <div class="stat"><div class="stat-value">25</div><div class="stat-label">Reviews a day, non-owner cap</div></div>
+            <div class="stat"><div class="stat-value">5</div><div class="stat-label">LLM providers in failover</div></div>
+            <div class="stat"><div class="stat-value">6</div><div class="stat-label">Named languages in README</div></div>
         </div>
     </section>
-
-    <!-- PR PREVIEW -->
     <div class="pr-preview">
         <div class="pr-card float">
             <div class="pr-card-header">
                 <div class="window-dot" style="background:#ff5f57"></div>
                 <div class="window-dot" style="background:#ffbd2e"></div>
                 <div class="window-dot" style="background:#28c840"></div>
-                <span class="pr-card-title">PRPilot reviewed #42 · feat: add user authentication</span>
+                <span class="pr-card-title">PRPilot reviewed #42: feat: add user authentication</span>
             </div>
             <div class="pr-body">
                 <div class="pr-comment">
@@ -427,7 +441,7 @@
                     <div class="pr-comment-body">
                         <div class="pr-comment-meta">
                             <span class="who">PRPilot</span>
-                            <span class="when">just now · AI review</span>
+                            <span class="when">just now, AI review</span>
                         </div>
                         <div class="pr-issue critical">
                             <span class="issue-tag tag-critical">Critical</span>
@@ -439,112 +453,162 @@
                         </div>
                         <div class="pr-issue pass">
                             <span class="issue-tag tag-pass">Pass</span>
-                            <span>Style and structure look great — clean naming, consistent formatting.</span>
+                            <span>Style and structure look great: clean naming, consistent formatting.</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="divider"></div>
-
-    <!-- FEATURES -->
     <section class="section" id="features">
         <p class="section-label microlabel">What we check</p>
         <h2 class="section-title">Four specialists, one review</h2>
         <p class="section-subtitle">Each agent is an expert in its domain, analyzing your diff in parallel for comprehensive feedback in seconds.</p>
         <div class="features-grid">
             <div class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
-                </div>
                 <h3>Style analysis</h3>
                 <p>Consistent naming, formatting, structure, and documentation across your codebase.</p>
-                <div class="feature-tags">
-                    <span class="feature-tag">Naming</span><span class="feature-tag">Formatting</span><span class="feature-tag">Structure</span>
-                </div>
+                <div class="feature-tags"><span class="feature-tag">Naming</span><span class="feature-tag">Formatting</span><span class="feature-tag">Structure</span></div>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                </div>
                 <h3>Security scanning</h3>
                 <p>SQL injection, hardcoded secrets, XSS vectors, and authentication flaws caught before merge.</p>
-                <div class="feature-tags">
-                    <span class="feature-tag">Injection</span><span class="feature-tag">Secrets</span><span class="feature-tag">XSS</span><span class="feature-tag">Auth</span>
-                </div>
+                <div class="feature-tags"><span class="feature-tag">Injection</span><span class="feature-tag">Secrets</span><span class="feature-tag">XSS</span><span class="feature-tag">Auth</span></div>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                </div>
                 <h3>Performance review</h3>
                 <p>Bottlenecks, memory leaks, N+1 queries, and inefficient algorithms flagged with context.</p>
-                <div class="feature-tags">
-                    <span class="feature-tag">N+1 queries</span><span class="feature-tag">Memory</span><span class="feature-tag">Complexity</span>
-                </div>
+                <div class="feature-tags"><span class="feature-tag">N+1 queries</span><span class="feature-tag">Memory</span><span class="feature-tag">Complexity</span></div>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                </div>
                 <h3>Logic checking</h3>
                 <p>Edge cases, null pointers, missing error handling, and incorrect business logic.</p>
-                <div class="feature-tags">
-                    <span class="feature-tag">Edge cases</span><span class="feature-tag">Null safety</span><span class="feature-tag">Errors</span>
-                </div>
+                <div class="feature-tags"><span class="feature-tag">Edge cases</span><span class="feature-tag">Null safety</span><span class="feature-tag">Errors</span></div>
             </div>
         </div>
     </section>
-
     <div class="divider"></div>
-
-    <!-- HOW IT WORKS -->
     <section class="section" id="how-it-works">
         <p class="section-label microlabel">Simple setup</p>
         <h2 class="section-title">Live in three steps</h2>
         <p class="section-subtitle">No config files, no CI pipelines. Install the app and PRPilot handles the rest.</p>
         <div class="steps">
-            <div class="step">
-                <div class="step-number">1</div>
-                <h3>Install the app</h3>
-                <p>Authorize PRPilot on your repositories. Takes under thirty seconds.</p>
+            <div class="step"><div class="step-number">1</div><h3>Install the app</h3><p>Authorize PRPilot on your repositories. Takes under thirty seconds.</p></div>
+            <div class="step"><div class="step-number">2</div><h3>Open a pull request</h3><p>PRPilot triggers automatically and begins analyzing your diff.</p></div>
+            <div class="step"><div class="step-number">3</div><h3>Get expert feedback</h3><p>A detailed review lands on your PR with categorized, actionable issues.</p></div>
+        </div>
+    </section>
+    <div class="divider"></div>
+    <section class="section" id="limits">
+        <p class="section-label microlabel">Honest limits</p>
+        <h2 class="section-title">What PRPilot costs, and where it stops</h2>
+        <p class="section-subtitle">PRPilot is free to install. It is not unlimited, and it is not a compliance product. Read the limits before you install.</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Free app, bring your own key</h3>
+                <p>PRPilot itself charges no fee to install. You supply your own LLM API key, for example Google Gemini or Groq, and you pay that provider under your own account for the usage your reviews create. If your key is missing, invalid, or out of quota, reviews can fail or be skipped.</p>
             </div>
-            <div class="step">
-                <div class="step-number">2</div>
-                <h3>Open a pull request</h3>
-                <p>PRPilot triggers automatically and begins analyzing your diff.</p>
+            <div class="feature-card">
+                <h3>25 reviews a day for non-owners</h3>
+                <p>Installations other than the owner account are capped at 25 reviews per day by default. When the cap is reached, further reviews are skipped instead of consuming provider quota. The owner account is not subject to that cap, as documented in the README.</p>
             </div>
-            <div class="step">
-                <div class="step-number">3</div>
-                <h3>Get expert feedback</h3>
-                <p>A detailed review lands on your PR with categorized, actionable issues.</p>
+            <div class="feature-card">
+                <h3>First-files and diff limits</h3>
+                <p>Very large pull requests may be reviewed in part only. Any first-files or diff size limits are documented in the README and shown on the dashboard. This page does not invent a file or line number that is not in those sources.</p>
+            </div>
+            <div class="feature-card">
+                <h3>AI reviews can be wrong</h3>
+                <p>Reviews are generated by AI and may contain errors. Always verify suggestions before merging. PRPilot is a review aid, not a guarantee that code is secure, correct, or compliant.</p>
             </div>
         </div>
     </section>
-
     <div class="divider"></div>
-
-    <!-- CTA -->
+    <section class="section" id="permissions">
+        <p class="section-label microlabel">Access and trust</p>
+        <h2 class="section-title">Permissions, languages, and providers</h2>
+        <p class="section-subtitle">What PRPilot can access, what it can review, and which services handle your data.</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>GitHub App permissions</h3>
+                <p>Permissions are listed on the GitHub App install page. Check that page before you install, and install only on the repositories you want reviewed. The install page is the authoritative list if it differs from any other page.</p>
+                <p style="margin-top:12px;">Install link: <a href="https://github.com/apps/prpilot-mirzasayzz" style="color:var(--gold-bright);">github.com/apps/prpilot-mirzasayzz</a></p>
+            </div>
+            <div class="feature-card">
+                <h3>Supported languages</h3>
+                <p>The README names these languages: Python, JavaScript, TypeScript, Go, Java, and C++. The README also says "and more" without naming other languages, so this page does not list any language beyond those six names.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Providers that process review data</h3>
+                <p>Pull request diffs and review context are sent to LLM providers in the failover chain and to the hosting and storage services below. See the Privacy page for the full list and what each service does.</p>
+                <ul>
+                    <li>Gemini</li>
+                    <li>Groq</li>
+                    <li>Cerebras</li>
+                    <li>OpenRouter</li>
+                    <li>LLMApi</li>
+                    <li>Supabase (review storage)</li>
+                    <li>Vercel (hosting)</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>Data retention and uninstall</h3>
+                <p>Review metadata is retained until uninstall or on request. It is not kept for a fixed number of days stated on this page, because no fixed retention period was verified. On uninstall, PRPilot stops reviewing new pull requests. Ask for deletion of your stored review metadata at any time through the repository contact on the Privacy page.</p>
+            </div>
+        </div>
+    </section>
+    <div class="divider"></div>
+    <section class="section" id="faq">
+        <p class="section-label microlabel">FAQ</p>
+        <h2 class="section-title">Questions, answered plainly</h2>
+        <div class="faq">
+            <details>
+                <summary>Is PRPilot free?</summary>
+                <p>Yes, PRPilot is free to install and charges no fee itself. You still need your own LLM API key, and you pay that provider for usage. There is no credit card step in PRPilot itself, and there is no paid plan described on this page.</p>
+            </details>
+            <details>
+                <summary>Do I need my own API key?</summary>
+                <p>Yes. PRPilot uses a bring-your-own-key model. You provide a valid key, for example Google Gemini or Groq, and you are responsible for charges and quota on that provider account. An invalid or exhausted key can cause reviews to fail or be skipped.</p>
+            </details>
+            <details>
+                <summary>What happens when I reach the daily cap?</summary>
+                <p>For non-owner installations, the default cap is 25 reviews per day. When the cap is reached, further reviews are skipped until the next window instead of consuming provider quota.</p>
+            </details>
+            <details>
+                <summary>What happens on uninstall?</summary>
+                <p>PRPilot stops reviewing new pull requests after you uninstall it. Review metadata is retained until uninstall or on request, as stated in the retention section above. To ask for deletion of stored review metadata, contact the maintainer through the repository linked on the Privacy page.</p>
+            </details>
+            <details>
+                <summary>What languages does PRPilot review?</summary>
+                <p>The README names Python, JavaScript, TypeScript, Go, Java, and C++, and says "and more" without naming others. If your language is not named here, do not assume it is fully supported.</p>
+            </details>
+            <details>
+                <summary>What data is sent to LLM providers?</summary>
+                <p>Pull request diffs and the context needed to review them are sent to the LLM provider handling that review, through the failover chain: Gemini, Groq, Cerebras, OpenRouter, or LLMApi. Review results are stored in Supabase and the site is hosted on Vercel. Do not include secrets in a pull request and expect them to stay private: hardcoded secrets in code are exactly what the security agent is designed to flag, and review text may quote code from the diff.</p>
+            </details>
+            <details>
+                <summary>What permissions does PRPilot need?</summary>
+                <p>Permissions are listed on the GitHub App install page. Read that page before installing, and limit the installation to the repositories you want reviewed.</p>
+            </details>
+        </div>
+    </section>
+    <div class="divider"></div>
     <section class="cta-section">
         <div class="cta-box">
             <h2>Ship better code.</h2>
-            <p>Join developers catching issues before they hit production. Free forever — no credit card required.</p>
+            <p>Join developers catching issues before they hit production. Free to install, with your own API key and the limits stated above.</p>
             <div class="cta-perks">
-                <div class="cta-perk"><div class="perk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>Free to install</div>
-                <div class="cta-perk"><div class="perk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>No config needed</div>
-                <div class="cta-perk"><div class="perk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>Any repo</div>
-                <div class="cta-perk"><div class="perk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>Open source</div>
+                <div class="cta-perk"><div class="perk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>Free to install</div>
+                <div class="cta-perk"><div class="perk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>No config needed</div>
+                <div class="cta-perk"><div class="perk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>Any repo you authorize</div>
+                <div class="cta-perk"><div class="perk-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>Open source</div>
             </div>
             <a href="https://github.com/apps/prpilot-mirzasayzz" class="btn-gold" id="cta-install-btn" style="padding:15px 34px;font-size:0.95rem;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6C20.6 21.8 24 17.3 24 12c0-6.6-5.4-12-12-12z"/></svg>
                 Install PRPilot
             </a>
         </div>
     </section>
-
-    <!-- FOOTER -->
+    </main>
     <footer>
         <a href="/" class="footer-logo">
             <img src="/logo.svg" alt="PRPilot">
@@ -554,8 +618,32 @@
             <a href="https://github.com/mirzasayzz/prpilot" target="_blank" rel="noopener">GitHub</a>
             <a href="/privacy.html">Privacy</a>
             <a href="/terms.html">Terms</a>
+            <a href="/config.html">Config</a>
         </div>
-        <div class="footer-copy">© 2026 PRPilot · multi-model AI reviews</div>
+        <div class="footer-copy">Copyright PRPilot, maintained by mirzasayzz. AI reviews, free to install.</div>
     </footer>
+    <script>
+        (function () {
+            var toggle = document.getElementById('nav-toggle');
+            var links = document.getElementById('nav-links');
+            var status = document.getElementById('nav-status');
+            if (!toggle || !links) return;
+            toggle.addEventListener('click', function () {
+                var open = links.classList.toggle('open');
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                toggle.textContent = open ? 'Close' : 'Menu';
+                if (status) status.textContent = open ? 'Menu opened.' : 'Menu closed.';
+            });
+            links.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth <= 640) {
+                        links.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                        toggle.textContent = 'Menu';
+                    }
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

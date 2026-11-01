@@ -1,429 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRPilot — Configuration</title>
-    <meta name="theme-color" content="#08080b">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #08080b;
-            --surface: #0f0f12;
-            --panel: rgba(255, 255, 255, 0.035);
-            --panel-strong: rgba(255, 255, 255, 0.06);
-            --hairline: rgba(255, 255, 255, 0.08);
-            --hairline-strong: rgba(255, 255, 255, 0.14);
-            --ink: #f2efe6;
-            --ink-secondary: #b0adb8;
-            --ink-muted: #726f7c;
-            --gold: #b8842f;
-            --gold-bright: #e3b862;
-            --gold-soft: rgba(227, 184, 98, 0.14);
-            --bull: #27a86f;
-            --bull-bright: #43d492;
-            --bear: #d94f4f;
-            --bear-bright: #f07a7a;
-            --font-display: "Instrument Serif", Georgia, serif;
-            --font-sans: "Inter", system-ui, sans-serif;
-            --font-mono: "JetBrains Mono", monospace;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: var(--font-sans);
-            background: var(--bg);
-            color: var(--ink);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
-        ::selection { background: rgba(227, 184, 98, 0.28); color: #fff; }
-        * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.14) transparent; }
-        *::-webkit-scrollbar { width: 6px; height: 6px; }
-        *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 999px; }
-
-        .stage {
-            position: fixed; inset: 0; z-index: -2;
-            background:
-                radial-gradient(1100px 700px at 18% -10%, rgba(227, 184, 98, 0.07), transparent 60%),
-                radial-gradient(900px 640px at 85% 8%, rgba(125, 143, 214, 0.06), transparent 60%),
-                var(--bg);
-        }
-        .grain {
-            position: fixed; inset: -50%; z-index: 60; pointer-events: none; opacity: 0.45;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            animation: grain-shift 9s steps(8) infinite;
-        }
-        @keyframes grain-shift { 0%{transform:translate(0,0)} 25%{transform:translate(-3%,2%)} 50%{transform:translate(2%,-3%)} 75%{transform:translate(-2%,-2%)} 100%{transform:translate(0,0)} }
-
-        .container { max-width: 620px; margin: 0 auto; padding: 48px 20px 80px; position: relative; z-index: 1; }
-
-        /* header */
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 44px; }
-        .header .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
-        .header .brand img { width: 34px; height: 34px; border-radius: 10px; }
-        .header .brand .wordmark { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.3px; }
-        .header .brand .wordmark span { color: var(--gold-bright); }
-        .header .home-link { color: var(--ink-muted); text-decoration: none; font-size: 0.84rem; transition: color 0.2s; }
-        .header .home-link:hover { color: var(--ink); }
-
-        .page-title {
-            font-family: var(--font-display);
-            font-weight: 400;
-            font-size: clamp(2rem, 5vw, 2.8rem);
-            margin-bottom: 10px;
-            letter-spacing: -0.5px;
-        }
-        .page-sub {
-            color: var(--ink-muted);
-            font-size: 0.92rem;
-            font-weight: 300;
-            margin-bottom: 40px;
-        }
-
-        /* cards */
-        .card {
-            background: var(--panel);
-            border: 1px solid var(--hairline);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-radius: 18px;
-            padding: 30px;
-            margin-bottom: 20px;
-        }
-        .card h2 {
-            font-size: 0.82rem;
-            font-weight: 600;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--gold-bright);
-            margin-bottom: 22px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .info-box {
-            background: var(--gold-soft);
-            border: 1px solid rgba(227, 184, 98, 0.28);
-            border-radius: 12px;
-            padding: 16px 18px;
-            margin-bottom: 22px;
-            font-size: 0.86rem;
-            line-height: 1.65;
-            color: var(--ink-secondary);
-        }
-        .info-box strong { color: var(--ink); font-weight: 600; }
-        .info-box a { color: var(--gold-bright); text-decoration: none; }
-        .info-box a:hover { text-decoration: underline; }
-        .info-box ul { margin: 8px 0 0 18px; }
-        .info-box li { margin-bottom: 4px; }
-
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; color: var(--ink-secondary); font-size: 0.86rem; font-weight: 500; }
-        input[type="text"], input[type="password"], select {
-            width: 100%;
-            padding: 13px 16px;
-            border: 1px solid var(--hairline-strong);
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.35);
-            color: var(--ink);
-            font-size: 0.95rem;
-            font-family: var(--font-sans);
-            transition: border-color 0.25s, box-shadow 0.25s;
-        }
-        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23b0adb8' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(227, 184, 98, 0.15);
-        }
-        select option { background: var(--surface); color: var(--ink); }
-
-        /* toggles */
-        .toggle-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--hairline);
-        }
-        .toggle-group:last-child { border-bottom: none; padding-bottom: 0; }
-        .toggle-label { display: flex; align-items: center; gap: 12px; }
-        .toggle-icon {
-            width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
-            background: var(--gold-soft); border: 1px solid rgba(227,184,98,0.25);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--gold-bright);
-        }
-        .toggle-icon svg { width: 17px; height: 17px; }
-        .toggle-label strong { font-size: 0.92rem; font-weight: 600; display: block; }
-        .toggle-label .sub { font-size: 0.8rem; color: var(--ink-muted); margin-top: 2px; }
-        .toggle { position: relative; width: 46px; height: 24px; flex-shrink: 0; }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(255, 255, 255, 0.14);
-            transition: 0.25s; border-radius: 24px;
-        }
-        .toggle-slider:before {
-            position: absolute; content: ""; height: 18px; width: 18px;
-            left: 3px; bottom: 3px;
-            background-color: #fff;
-            transition: 0.25s; border-radius: 50%;
-        }
-        .toggle input:checked + .toggle-slider { background: linear-gradient(120deg, var(--gold), var(--gold-bright)); }
-        .toggle input:checked + .toggle-slider:before { transform: translateX(22px); }
-
-        /* buttons */
-        .btn {
-            width: 100%; padding: 15px; border: none; border-radius: 999px;
-            font-size: 0.95rem; font-weight: 600; cursor: pointer;
-            font-family: var(--font-sans);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .btn-primary {
-            background: linear-gradient(120deg, var(--gold), var(--gold-bright));
-            color: #0c0a05;
-        }
-        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(227, 184, 98, 0.25); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-        .status {
-            text-align: center; padding: 13px; border-radius: 12px;
-            margin-top: 18px; display: none; font-size: 0.88rem;
-        }
-        .status.success { display: block; background: rgba(39,168,111,0.1); border: 1px solid rgba(39,168,111,0.35); color: var(--bull-bright); }
-        .status.error { display: block; background: rgba(217,79,79,0.1); border: 1px solid rgba(217,79,79,0.35); color: var(--bear-bright); }
-
-        .loading { display: none; text-align: center; padding: 50px; }
-        .spinner {
-            width: 38px; height: 38px;
-            border: 3px solid rgba(255, 255, 255, 0.08);
-            border-top-color: var(--gold-bright);
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-            margin: 0 auto 18px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading p { color: var(--ink-muted); font-size: 0.9rem; }
-
-        #api-key-status { color: var(--ink-muted); font-size: 0.85rem; margin-top: 4px; }
-
-        .footer-note { text-align: center; margin-top: 36px; color: var(--ink-muted); font-size: 0.78rem; }
-        .footer-note a { color: var(--ink-muted); }
-
-        @media (prefers-reduced-motion: reduce) {
-            .grain { animation: none; }
-            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-        }
-        @media (max-width: 520px) { .card { padding: 24px 20px; } }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRPilot Configuration</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0d0d0f; color: #f2ede4; line-height: 1.5; }
+  a { color: #e3b862; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #e3b862; outline-offset: 2px; }
+  .skip-link { position: absolute; left: -9999px; top: 0; background: #e3b862; color: #111; padding: 0.5rem 1rem; font-weight: 700; }
+  .skip-link:focus { left: 0.5rem; top: 0.5rem; }
+  header { border-bottom: 1px solid #2a2418; padding: 1rem 1.25rem; }
+  header h1 { margin: 0; font-size: 1.5rem; color: #e3b862; }
+  header p { margin: 0.25rem 0 0; color: #b8b0a0; }
+  main { max-width: 640px; margin: 0 auto; padding: 1.25rem; }
+  form { background: #17171a; border: 1px solid #2a2418; border-radius: 10px; padding: 1.25rem; }
+  label { display: block; margin: 1rem 0 0.25rem; font-weight: 600; }
+  input[type="text"], input[type="password"], select { width: 100%; padding: 0.6rem; border: 1px solid #3a3325; border-radius: 6px; background: #0d0d0f; color: #f2ede4; font-size: 1rem; }
+  fieldset { border: 1px solid #2a2418; border-radius: 8px; margin-top: 1rem; padding: 0.75rem 1rem; }
+  fieldset legend { color: #e3b862; font-weight: 700; }
+  fieldset label { font-weight: 400; margin: 0.5rem 0; }
+  button { margin-top: 1rem; padding: 0.65rem 1.25rem; border: none; border-radius: 6px; background: #e3b862; color: #111; font-size: 1rem; font-weight: 700; cursor: pointer; }
+  button.secondary { background: transparent; color: #e3b862; border: 1px solid #e3b862; }
+  button:disabled { opacity: 0.6; cursor: default; }
+  .row { display: flex; gap: 0.5rem; align-items: stretch; flex-wrap: wrap; }
+  .row input { flex: 1; min-width: 200px; }
+  .row button { margin-top: 0; }
+  .hint { color: #b8b0a0; font-size: 0.9rem; margin: 0.25rem 0 0; }
+  .warning { color: #e3b862; font-size: 0.95rem; margin: 0.5rem 0 0; }
+  .warning[hidden] { display: none; }
+  #status { margin-top: 1rem; }
+</style>
 </head>
 <body>
-    <div class="stage" aria-hidden></div>
-    <div class="grain" aria-hidden></div>
+<a class="skip-link" href="#main">Skip to configuration form</a>
+<header>
+  <h1>PRPilot Configuration</h1>
+  <p>Choose a provider, add an optional API key, and pick which reviews run.</p>
+</header>
+<main id="main">
+  <p id="status" aria-live="polite">Loading your configuration.</p>
+  <form id="config-form" hidden>
+    <label for="provider">LLM provider</label>
+    <select id="provider" name="provider">
+      <option value="gemini">Gemini</option>
+      <option value="groq">Groq</option>
+    </select>
+    <p class="hint">This is the provider your own key is for. If no key is saved, PRPilot uses its built-in provider chain instead.</p>
 
-    <div class="container">
-        <div class="header">
-            <a href="/" class="brand">
-                <img src="/logo.svg" alt="PRPilot">
-                <span class="wordmark">PR<span>Pilot</span></span>
-            </a>
-            <a href="/" class="home-link">← Back home</a>
-        </div>
-
-        <h1 class="page-title">Configuration</h1>
-        <p class="page-sub">Connect an API key and tune which reviews PRPilot runs on your repos.</p>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Loading configuration…</p>
-        </div>
-
-        <div id="config-form" style="display: none;">
-            <div class="card">
-                <h2>API key</h2>
-                <div class="info-box">
-                    <strong>Bring your own key.</strong> PRPilot is free — you supply the model key and pay nothing to us.
-                    <ul>
-                        <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google Gemini</a> — free tier, recommended</li>
-                        <li><a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> — fast inference, free tier</li>
-                    </ul>
-                </div>
-
-                <div class="form-group">
-                    <label for="llm-provider">LLM provider</label>
-                    <select id="llm-provider">
-                        <option value="gemini">Google Gemini (recommended)</option>
-                        <option value="groq">Groq (fast inference)</option>
-                    </select>
-                </div>
-
-                <div class="form-group" id="gemini-key-group">
-                    <label for="gemini-api-key">Google Gemini API key</label>
-                    <input type="password" id="gemini-api-key" placeholder="AIza…" autocomplete="off">
-                </div>
-                <div class="form-group" id="groq-key-group" style="display: none;">
-                    <label for="groq-api-key">Groq API key</label>
-                    <input type="password" id="groq-api-key" placeholder="gsk_…" autocomplete="off">
-                </div>
-                <p id="api-key-status"></p>
-            </div>
-
-            <div class="card">
-                <h2>Review settings</h2>
-                <div class="toggle-group">
-                    <div class="toggle-label">
-                        <div class="toggle-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
-                        <div><strong>Style review</strong><div class="sub">Formatting, naming conventions</div></div>
-                    </div>
-                    <label class="toggle"><input type="checkbox" id="toggle-style" checked><span class="toggle-slider"></span></label>
-                </div>
-                <div class="toggle-group">
-                    <div class="toggle-label">
-                        <div class="toggle-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-                        <div><strong>Security review</strong><div class="sub">Vulnerabilities, hardcoded secrets</div></div>
-                    </div>
-                    <label class="toggle"><input type="checkbox" id="toggle-security" checked><span class="toggle-slider"></span></label>
-                </div>
-                <div class="toggle-group">
-                    <div class="toggle-label">
-                        <div class="toggle-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-                        <div><strong>Performance review</strong><div class="sub">Complexity, optimizations</div></div>
-                    </div>
-                    <label class="toggle"><input type="checkbox" id="toggle-performance" checked><span class="toggle-slider"></span></label>
-                </div>
-                <div class="toggle-group">
-                    <div class="toggle-label">
-                        <div class="toggle-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
-                        <div><strong>Logic review</strong><div class="sub">Bugs, edge cases, error handling</div></div>
-                    </div>
-                    <label class="toggle"><input type="checkbox" id="toggle-logic" checked><span class="toggle-slider"></span></label>
-                </div>
-            </div>
-
-            <button class="btn btn-primary" id="save-btn">Save configuration</button>
-            <div class="status" id="status"></div>
-        </div>
-
-        <p class="footer-note"><a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="https://github.com/mirzasayzz/prpilot" target="_blank" rel="noopener">GitHub</a></p>
+    <label for="api-key">API key (optional)</label>
+    <div class="row">
+      <input id="api-key" name="api-key" type="password" autocomplete="off" placeholder="Leave blank to keep the saved key">
+      <button type="button" id="toggle-key">Show key</button>
     </div>
+    <p class="hint">Your key is stored encrypted and is never shown back to this page after saving. Leaving this blank keeps the existing saved key.</p>
+    <p id="key-warning" class="warning" hidden></p>
+    <p class="hint">Format check only: Gemini keys start with AIza, Groq keys start with gsk_. This page does not test the key against the provider.</p>
 
-    <script>
-        const API_BASE = '/api';
-        let installationId = null;
+    <fieldset>
+      <legend>Review types</legend>
+      <label><input type="checkbox" id="toggle-style" checked> Style</label>
+      <label><input type="checkbox" id="toggle-security" checked> Security</label>
+      <label><input type="checkbox" id="toggle-performance" checked> Performance</label>
+      <label><input type="checkbox" id="toggle-logic" checked> Logic</label>
+    </fieldset>
 
-        const urlParams = new URLSearchParams(window.location.search);
-        installationId = urlParams.get('installation_id');
+    <fieldset>
+      <legend>Approval</legend>
+      <label><input type="checkbox" id="toggle-auto-approve"> Auto approve clean pull requests (only when no critical or high issue is found)</label>
+    </fieldset>
 
-        if (!installationId) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('config-form').style.display = 'block';
-            showStatus('No installation ID provided. Please install the app from GitHub.', 'error');
-        } else {
-            loadConfig();
-        }
+    <div class="row">
+      <button type="submit" id="save-button">Save configuration</button>
+      <button type="button" id="delete-key" class="secondary">Delete key</button>
+    </div>
+    <p class="hint" id="key-state"></p>
+  </form>
+  <nav><p><a href="/" id="dashboard-link">View dashboard</a> &middot; <a href="/">Back to home</a></p></nav>
+</main>
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get("config_token") || "";
+  var statusEl = document.getElementById("status");
+  var form = document.getElementById("config-form");
+  var keyInput = document.getElementById("api-key");
+  var keyWarning = document.getElementById("key-warning");
+  var providerEl = document.getElementById("provider");
+  var dashboardLink = document.getElementById("dashboard-link");
+  if (token) {
+    dashboardLink.href = "/dashboard.html?config_token=" + encodeURIComponent(token);
+  }
+  if (!token) {
+    statusEl.textContent = "No config link found. This page needs a fresh install link, which lasts 1 hour. Reinstall from GitHub to get a new link.";
+    return;
+  }
 
-        async function loadConfig() {
-            document.getElementById('loading').style.display = 'block';
-            try {
-                const response = await fetch(`${API_BASE}/config?installation_id=${installationId}`);
-                const data = await response.json();
-                if (response.ok) {
-                    const settings = data.settings || {};
-                    document.getElementById('toggle-style').checked = settings.review_style !== false;
-                    document.getElementById('toggle-security').checked = settings.review_security !== false;
-                    document.getElementById('toggle-performance').checked = settings.review_performance !== false;
-                    document.getElementById('toggle-logic').checked = settings.review_logic !== false;
+  function checkKeyFormat() {
+    var value = keyInput.value.trim();
+    var provider = providerEl.value;
+    if (!value) { keyWarning.hidden = true; keyWarning.textContent = ""; return; }
+    var ok = (provider === "gemini" && value.indexOf("AIza") === 0) ||
+             (provider === "groq" && value.indexOf("gsk_") === 0);
+    if (!ok) {
+      keyWarning.hidden = false;
+      keyWarning.textContent = "Format warning: this key does not look like a " + provider +
+        " key (Gemini keys start with AIza, Groq keys start with gsk_). You can still save it, but check it before relying on it.";
+    } else {
+      keyWarning.hidden = true; keyWarning.textContent = "";
+    }
+  }
+  keyInput.addEventListener("input", checkKeyFormat);
+  providerEl.addEventListener("change", checkKeyFormat);
 
-                    const statusEl = document.getElementById('api-key-status');
-                    if (data.has_api_key) {
-                        const provider = data.llm_provider || 'gemini';
-                        statusEl.textContent = `✓ ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key configured`;
-                        statusEl.style.color = '#43d492';
-                        document.getElementById('llm-provider').value = provider;
-                        updateProviderFields();
-                    } else {
-                        statusEl.textContent = '— No API key configured yet';
-                        statusEl.style.color = '#726f7c';
-                    }
-                } else {
-                    showStatus(data.error || 'Failed to load configuration', 'error');
-                }
-            } catch (error) {
-                showStatus('Failed to connect to server: ' + error.message, 'error');
-            }
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('config-form').style.display = 'block';
-        }
+  document.getElementById("toggle-key").addEventListener("click", function (event) {
+    var button = event.target;
+    if (keyInput.type === "password") {
+      keyInput.type = "text"; button.textContent = "Hide key";
+    } else {
+      keyInput.type = "password"; button.textContent = "Show key";
+    }
+  });
 
-        document.getElementById('llm-provider').addEventListener('change', updateProviderFields);
+  function apiCall(body) {
+    return fetch("/api/config?config_token=" + encodeURIComponent(token), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+  }
 
-        function updateProviderFields() {
-            const provider = document.getElementById('llm-provider').value;
-            document.getElementById('gemini-key-group').style.display = provider === 'gemini' ? 'block' : 'none';
-            document.getElementById('groq-key-group').style.display = provider === 'groq' ? 'block' : 'none';
-        }
+  fetch("/api/config?config_token=" + encodeURIComponent(token), {
+    headers: { "Accept": "application/json" }
+  }).then(function (resp) {
+    if (!resp.ok) { throw new Error("Request failed"); }
+    return resp.json();
+  }).then(function (data) {
+    statusEl.textContent = "Configuration loaded.";
+    form.hidden = false;
+    var settings = data.settings || {};
+    if (data.llm_provider) { providerEl.value = data.llm_provider; }
+    document.getElementById("toggle-style").checked = settings.review_style !== false;
+    document.getElementById("toggle-security").checked = settings.review_security !== false;
+    document.getElementById("toggle-performance").checked = settings.review_performance !== false;
+    document.getElementById("toggle-logic").checked = settings.review_logic !== false;
+    document.getElementById("toggle-auto-approve").checked = !!settings.auto_approve;
+    document.getElementById("key-state").textContent = data.has_api_key ?
+      "A key is currently saved. Leave the key field blank to keep it." :
+      "No key is currently saved.";
+  }).catch(function () {
+    statusEl.textContent = "Could not load configuration. Your link may have expired (links last 1 hour). Reinstall to get a new link.";
+  });
 
-        document.getElementById('save-btn').addEventListener('click', async () => {
-            const btn = document.getElementById('save-btn');
-            btn.disabled = true;
-            btn.textContent = 'Saving…';
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    statusEl.textContent = "Saving.";
+    var body = {
+      llm_provider: providerEl.value,
+      settings: {
+        review_style: document.getElementById("toggle-style").checked,
+        review_security: document.getElementById("toggle-security").checked,
+        review_performance: document.getElementById("toggle-performance").checked,
+        review_logic: document.getElementById("toggle-logic").checked,
+        auto_approve: document.getElementById("toggle-auto-approve").checked
+      }
+    };
+    var key = keyInput.value.trim();
+    if (key) { body.api_key = key; }
+    apiCall(body).then(function (resp) {
+      if (!resp.ok) { throw new Error("Request failed"); }
+      statusEl.textContent = "Configuration saved.";
+      keyInput.value = "";
+      document.getElementById("key-state").textContent = key ?
+        "A key is now saved." : document.getElementById("key-state").textContent;
+    }).catch(function () {
+      statusEl.textContent = "Could not save configuration. Please try again.";
+    });
+  });
 
-            try {
-                const provider = document.getElementById('llm-provider').value;
-                const apiKey = provider === 'gemini'
-                    ? document.getElementById('gemini-api-key').value.trim()
-                    : document.getElementById('groq-api-key').value.trim();
-
-                const settings = {
-                    review_style: document.getElementById('toggle-style').checked,
-                    review_security: document.getElementById('toggle-security').checked,
-                    review_performance: document.getElementById('toggle-performance').checked,
-                    review_logic: document.getElementById('toggle-logic').checked
-                };
-
-                const payload = {
-                    installation_id: installationId,
-                    settings: settings,
-                    llm_provider: provider
-                };
-                if (apiKey) payload.api_key = apiKey;
-
-                const response = await fetch(`${API_BASE}/config`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    showStatus('Configuration saved successfully', 'success');
-                    document.getElementById('gemini-api-key').value = '';
-                    document.getElementById('groq-api-key').value = '';
-                    if (apiKey) {
-                        const statusEl = document.getElementById('api-key-status');
-                        statusEl.textContent = `✓ ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key configured`;
-                        statusEl.style.color = '#43d492';
-                    }
-                } else {
-                    showStatus(data.error || 'Failed to save configuration', 'error');
-                }
-            } catch (error) {
-                showStatus('Failed to save: ' + error.message, 'error');
-            }
-            btn.disabled = false;
-            btn.textContent = 'Save configuration';
-        });
-
-        function showStatus(message, type) {
-            const statusEl = document.getElementById('status');
-            statusEl.textContent = message;
-            statusEl.className = 'status ' + type;
-        }
-    </script>
+  document.getElementById("delete-key").addEventListener("click", function () {
+    if (!window.confirm("Delete the saved API key? PRPilot will fall back to its built-in provider chain.")) { return; }
+    statusEl.textContent = "Deleting key.";
+    apiCall({ delete_api_key: true }).then(function (resp) {
+      if (!resp.ok) { throw new Error("Request failed"); }
+      statusEl.textContent = "Key deleted.";
+      keyInput.value = "";
+      document.getElementById("key-state").textContent = "No key is currently saved.";
+    }).catch(function () {
+      statusEl.textContent = "Could not delete the key. Please try again.";
+    });
+  });
+})();
+</script>
 </body>
 </html>
