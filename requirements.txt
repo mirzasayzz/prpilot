@@ -1,25 +1,36 @@
-# Core
-fastapi>=0.104.0
-uvicorn>=0.24.0
-python-dotenv>=1.0.0
+# PRPilot production dependencies, pinned.
+#
+# Removed from the previous unpinned list (see NOTES.md for the import
+# evidence): fastapi, uvicorn, pydantic, PyGithub, google-generativeai.
+# No file read in this track imports fastapi, uvicorn, pydantic, or
+# PyGithub. The runtime is Vercel serverless Python using
+# http.server.BaseHTTPRequestHandler, not FastAPI, and GitHub calls use
+# httpx with PyJWT, not PyGithub. google-generativeai is imported only
+# by agents/key_manager.py, which is listed for deletion in DEAD_CODE.md.
+#
+# Kept packages and where they are imported:
+#   httpx            api/webhook.py, github/client.py
+#   supabase         db/client.py (also check_db.py, listed for deletion)
+#   google-genai     agents/base.py, agents/llm_client.py
+#                    (lazy import: from google import genai)
+#   openai           agents/llm_client.py (OpenAI-compatible providers)
+#   cryptography     db/client.py (cryptography.fernet.Fernet)
+#   PyJWT            api/webhook.py, github/client.py (import jwt)
+#   python-dotenv    test_local.py only (load_dotenv, local harness).
+#                    Vercel functions read os.environ directly and do
+#                    not need python-dotenv, but it is kept here because
+#                    the local harness in the repo still imports it.
+#
+# Pins were checked against the PyPI index on 29 Oct 2026. The
+# openai and google-genai pins stay on the 1.x line on purpose: the
+# code in this repo was written against those APIs, and a move to a
+# later major line is a separate, tested change, not part of this
+# pinning change. See NOTES.md.
 
-# GitHub Integration
-PyGithub>=2.1.1
-httpx>=0.25.0
-
-# Google Gemini (new SDK - free with API key, gemini-2.0-flash)
-google-genai>=1.0.0
-
-# OpenAI SDK (used for all OpenAI-compatible fallback providers:
-# Groq, Cerebras, OpenRouter, SwiftRouter)
-openai>=1.0.0
-
-# Database
-supabase>=2.0.0
-
-# Security
-cryptography>=41.0.0
-PyJWT>=2.8.0
-
-# Utilities
-pydantic>=2.5.0
+httpx==0.28.1
+supabase==2.33.0
+google-genai==1.75.0
+openai==1.109.1
+cryptography==44.0.3
+PyJWT==2.10.1
+python-dotenv==1.2.4
