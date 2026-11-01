@@ -1,36 +1,54 @@
 # Privacy Policy for PRPilot
 
-**Last Updated: December 28, 2025**
+**Last Updated: 29 October 2026**
 
-## 1. Introduction
-PRPilot ("we", "our", or "us") provides an automated code review service integration for GitHub. We are committed to protecting your privacy and code security.
+The site copy (public/privacy.html) carries the same wording.
 
-## 2. Data We Collect
-We collect the minimum data necessary to provide our service:
-- **GitHub Metadata**: Repository names, PR numbers, commit hashes, and file names (to perform reviews).
-- **Code Content**: We temporarily process the code in your Pull Requests to generate reviews. **We do not store your code.**
-- **API Keys**: If you provide your own Google Gemini or Groq API key, we store it in an **encrypted** format.
-- **Usage Logs**: Basic logs of success/failure rates for debugging.
+PRPilot is an AI code review GitHub App maintained in the repository [mirzasayzz/prpilot](https://github.com/mirzasayzz/prpilot).
 
-## 3. How We Use Data
-- To perform code analysis using Large Language Models (LLMs) via Google Gemini or Groq APIs.
-- To post review comments on your GitHub Pull Requests.
-- To maintain your configuration settings (enabled reviewers, preferences).
+## 1. What PRPilot collects
 
-## 4. Data Storage & Security
-- **Encryption**: All API keys are encrypted at rest using industry-standard Fernet (AES) encryption.
-- **No Code Retention**: Your code is sent to the LLM provider for analysis and immediately discarded. We do not use your code to train our own models.
-- **Database**: Data is stored in Supabase (PostgreSQL) with Row Level Security (RLS) enabled.
+When you install PRPilot and open or update a pull request, PRPilot receives the pull request data GitHub sends to the app, including the code diff and the context needed to review it, and it posts review comments back to that pull request. PRPilot also stores review metadata, such as which files were reviewed and which issues were found, so review history can be shown. PRPilot does not ask you for a password, and you should never put a secret in a pull request and expect it to stay private: hardcoded secrets in code are exactly what the security agent is designed to flag.
 
-## 5. Third-Party Services
-We use the following third-party processors:
-- **Google Gemini API**: For code analysis (LLM).
-- **Groq API**: For code analysis (LLM backup).
-- **Supabase**: For database hosting.
-- **Vercel**: For serverless hosting.
+## 2. Bring your own key
 
-## 6. Your Rights
-Você can revoke access at any time by uninstalling the GitHub App. Upon uninstallation, we can delete your configuration data upon request via GitHub Issues.
+PRPilot uses a bring-your-own-key model. You supply your own LLM API key, for example Google Gemini or Groq, and you are responsible for charges and quota on that provider account. API keys you configure are encrypted at rest and decrypted only briefly at runtime, as described in the README. PRPilot itself charges no fee to install.
 
-## 7. Contact
-For privacy concerns, please open an issue in our [GitHub Repository](https://github.com/aakashyadav27/prpilot).
+## 3. Subprocessors and services
+
+The following services process or store data for PRPilot. If a provider in this list changes, this policy should be updated before the change takes effect.
+
+- **Gemini (Google):** LLM provider in the failover chain. Receives diffs and review context for reviews it handles.
+- **Groq:** LLM provider in the failover chain. Receives diffs and review context for reviews it handles.
+- **Cerebras:** LLM provider in the failover chain. Receives diffs and review context for reviews it handles.
+- **OpenRouter:** LLM provider in the failover chain. Receives diffs and review context for reviews it handles.
+- **LLMApi:** LLM provider in the failover chain. Receives diffs and review context for reviews it handles.
+- **Supabase:** Stores review metadata and installation and usage records, including the daily review count used for the non-owner cap.
+- **Vercel:** Hosts the PRPilot site and serverless webhook that receives GitHub events.
+- **GitHub:** Sends pull request events to PRPilot and receives review comments. GitHub App permissions are listed on the GitHub App install page.
+
+Each provider has its own privacy policy and terms. PRPilot does not sell personal data and does not use review data for advertising.
+
+## 4. Data retention
+
+Review metadata is retained until uninstall or on request. If you want stored review metadata deleted sooner, request deletion using the contact below.
+
+## 5. Uninstall and deletion
+
+On uninstall, PRPilot stops reviewing new pull requests. Uninstalling the GitHub App does not by itself prove that stored review metadata has been deleted, so if you want deletion confirmed, request it through the contact below and state the repository or installation concerned. You may also ask at any time, without uninstalling, for your stored review metadata to be deleted.
+
+## 6. Usage cap
+
+Installations other than the owner account are capped at 25 reviews per day by default. The cap is counted in Supabase over a 24 hour window by default. When the cap is reached, further reviews are skipped instead of consuming provider quota.
+
+## 7. AI limitations
+
+Reviews are generated by AI and may contain errors. Verify all suggestions before merging. PRPilot makes no claim of compliance certification, and nothing on this site should be read as a security guarantee.
+
+## 8. Changes to this policy
+
+This policy may be updated. The updated date at the top will change when it is. Continued use after an update means you accept the updated policy.
+
+## 9. Contact
+
+For privacy questions, deletion requests, or corrections to this policy, contact the maintainer through the repository: [github.com/mirzasayzz/prpilot](https://github.com/mirzasayzz/prpilot). Please do not send API keys or secrets in a contact message. This page replaces any earlier privacy contact that named a different account.
