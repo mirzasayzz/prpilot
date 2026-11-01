@@ -1,4 +1,4 @@
-# 🧪 PRPilot — Complete Testing Guide (A to Z)
+# 🧪 PRPilot - Complete Testing Guide (A to Z)
 
 > **How to verify that PRPilot is fully working end-to-end**
 
@@ -32,9 +32,9 @@ Before testing, verify the 5 requirements:
 
 | Requirement | Where to Check |
 |------------|---------------|
-| ✅ PRPilot deployed on Vercel | `https://prpilot-dun.vercel.app/api/webhook` → should return `{"status": "healthy"}` |
+| ✅ PRPilot deployed on Vercel | `https://prpilot-one.vercel.app/api/webhook` → should return `{"status": "healthy"}` |
 | ✅ GitHub App created | `https://github.com/settings/apps/prpilot-mirzasayzz` |
-| ✅ Webhook URL set correctly | Same page → Webhook URL = `https://prpilot-dun.vercel.app/api/webhook` |
+| ✅ Webhook URL set correctly | Same page → Webhook URL = `https://prpilot-one.vercel.app/api/webhook` |
 | ✅ Supabase tables created | Supabase Dashboard → Table Editor → `installations` + `reviews` tables exist |
 | ✅ All env vars set on Vercel | Vercel Dashboard → Project → Settings → Environment Variables |
 
@@ -44,12 +44,12 @@ Before testing, verify the 5 requirements:
 
 ---
 
-### STEP 1 — Verify the Webhook Endpoint is Live
+### STEP 1 - Verify the Webhook Endpoint is Live
 
 Open your browser or terminal and check:
 
 ```bash
-curl https://prpilot-dun.vercel.app/api/webhook
+curl https://prpilot-one.vercel.app/api/webhook
 ```
 
 **Expected response:**
@@ -62,7 +62,7 @@ curl https://prpilot-dun.vercel.app/api/webhook
 
 ---
 
-### STEP 2 — Install PRPilot on Your Test Repository
+### STEP 2 - Install PRPilot on Your Test Repository
 
 ```
 📌 IMPORTANT: You must install the GitHub App on a repo first.
@@ -79,17 +79,17 @@ curl https://prpilot-dun.vercel.app/api/webhook
 
 3. Choose **which account** to install on → select `mirzasayzz`
 
-4. Choose **which repositories** — select either:
+4. Choose **which repositories** - select either:
    - **"All repositories"** (easiest for testing), OR
    - **"Only select repositories"** → pick a specific test repo
 
 5. Click **"Install & Authorize"**
 
-6. ✅ You'll be redirected — this means installation was successful!
+6. ✅ You'll be redirected - this means installation was successful!
 
 ---
 
-### STEP 3 — Create a Test Repository (if needed)
+### STEP 3 - Create a Test Repository (if needed)
 
 You need a **public or private GitHub repo** to test on. You can use your `prpilot` repo itself, or create a fresh one:
 
@@ -104,7 +104,7 @@ cd prpilot-test
 
 ---
 
-### STEP 4 — Create a Test File with Intentional Issues
+### STEP 4 - Create a Test File with Intentional Issues
 
 Create a file with **known bugs** so PRPilot has something to catch:
 
@@ -143,7 +143,7 @@ EOF
 
 ---
 
-### STEP 5 — Commit to a Branch (NOT main)
+### STEP 5 - Commit to a Branch (NOT main)
 
 ```mermaid
 gitGraph
@@ -172,7 +172,7 @@ git push origin feature/test-prpilot
 
 ---
 
-### STEP 6 — Open a Pull Request
+### STEP 6 - Open a Pull Request
 
 1. Go to your repo on GitHub: `https://github.com/mirzasayzz/prpilot-test`
 
@@ -190,7 +190,7 @@ git push origin feature/test-prpilot
 
 ---
 
-### STEP 7 — Watch PRPilot Review Your PR
+### STEP 7 - Watch PRPilot Review Your PR
 
 ```
 ⏱️ Within 10-30 seconds, PRPilot will post a comment on your PR
@@ -219,7 +219,7 @@ The PR will get a comment from the bot that looks like:
 
 ---
 
-### STEP 8 — Verify in Vercel Logs (if no comment appears)
+### STEP 8 - Verify in Vercel Logs (if no comment appears)
 
 If PRPilot **doesn't comment** within 60 seconds:
 
@@ -235,7 +235,7 @@ vercel logs prpilot --since 10m
 
 ---
 
-### STEP 9 — Verify in GitHub Webhook Logs
+### STEP 9 - Verify in GitHub Webhook Logs
 
 1. Go to: **https://github.com/settings/apps/prpilot-mirzasayzz**
 2. Click **"Advanced"** tab (in the left sidebar under the app settings)
@@ -254,7 +254,7 @@ If you see **❌ 4xx or 5xx errors**, click the delivery to see the full error r
 
 ---
 
-### STEP 10 — Verify in Supabase (Records Saved)
+### STEP 10 - Verify in Supabase (Records Saved)
 
 After a successful review, check that the data was saved:
 
@@ -274,14 +274,14 @@ After a successful review, check that the data was saved:
 2. Check Vercel function logs (Step 8)
 3. Make sure the app is INSTALLED on the repo (Step 2)
 4. Confirm the webhook URL in your GitHub App settings is exactly:
-   https://prpilot-dun.vercel.app/api/webhook
+   https://prpilot-one.vercel.app/api/webhook
 ```
 
 ### ❌ "Webhook 401/403 error"
 
 ```
 The webhook secret doesn't match. 
-→ GitHub App Settings: confirm Webhook Secret = "prpilot-secret-2025"
+→ GitHub App Settings: confirm Webhook Secret = "<your webhook secret>"
 → Vercel Env Vars: confirm GITHUB_WEBHOOK_SECRET = "prpilot-secret-2025"
 ```
 
@@ -309,7 +309,7 @@ Or add more API keys in GEMINI_API_KEYS (comma-separated).
 
 Run through this checklist to confirm everything works:
 
-- [ ] `curl https://prpilot-dun.vercel.app/api/webhook` returns `{"status": "healthy"}`
+- [ ] `curl https://prpilot-one.vercel.app/api/webhook` returns `{"status": "healthy"}`
 - [ ] GitHub App installed on at least 1 repo
 - [ ] PR created on non-main branch in that repo
 - [ ] Webhook shows **200** in GitHub App → Advanced → Recent Deliveries
@@ -325,7 +325,7 @@ Run through this checklist to confirm everything works:
 
 | Resource | URL |
 |----------|-----|
-| 🌐 Live App | https://prpilot-dun.vercel.app |
+| 🌐 Live App | https://prpilot-one.vercel.app |
 | 📦 GitHub App | https://github.com/apps/prpilot-mirzasayzz |
 | 💻 Source Code | https://github.com/mirzasayzz/prpilot |
 | 🗄️ Supabase Dashboard | https://supabase.com/dashboard/project/zdckiatbzpgwmjqmafpq |
