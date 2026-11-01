@@ -39,13 +39,20 @@ tables exist.
 
 ## 3. Worker schedule
 
-- `vercel.json` now declares a cron for `/api/process` every 5
-  minutes. Vercel Cron sends GET, and this branch supports an
-  authorised GET sweep (oldest pending event per call).
-- Check the Vercel plan first: frequent cron schedules may need a
-  paid plan. If the plan only allows daily cron, use an external
-  scheduler that POSTs to `/api/process` with `X-Cron-Secret`
-  instead, and remove or loosen the cron entry.
+- `vercel.json` deliberately declares no Vercel cron. A 5 minute
+  Vercel cron would fail deployment on a Hobby plan, which only
+  allows daily cron. Use an external scheduler instead, for
+  example a GitHub Actions cron, cron-job.org, or any scheduler
+  that calls `/api/process` every 5 minutes with
+  `X-Cron-Secret` or `Authorization: Bearer <CRON_SECRET>`.
+  Vercel Cron sends GET, and this branch supports an authorised
+  GET sweep (oldest pending event per call), so the same route
+  works for both.
+- `vercel.json` builds now list only the six handler files in
+  `api/` explicitly, instead of `api/*.py`, so helper modules
+  (`api/auth.py`, `api/env_check.py`, `api/logging_util.py`,
+  `api/review_worker.py`) are bundled as imports, not built as
+  separate public functions.
 - After the first deploy, check `webhook_events` for rows stuck in
   `failed` or `dead_letter`. Those are the retry and dead-letter
   states, not silent drops.

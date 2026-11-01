@@ -6,7 +6,27 @@
       "use": "@vercel/static"
     },
     {
-      "src": "api/*.py",
+      "src": "api/webhook.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/config.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/install.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/dashboard.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/process.py",
       "use": "@vercel/python"
     }
   ],
@@ -100,10 +120,5 @@
       "dest": "/public/sitemap.xml"
     }
   ],
-  "crons": [
-    {
-      "path": "/api/process",
-      "schedule": "*/5 * * * *"
-    }
-  ]
+  "crons": []
 }
