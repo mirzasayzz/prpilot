@@ -1,19 +1,124 @@
 {
   "version": 2,
   "builds": [
-    { "src": "public/**", "use": "@vercel/static" },
-    { "src": "api/*.py", "use": "@vercel/python" }
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/webhook.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/config.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/install.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/dashboard.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/process.py",
+      "use": "@vercel/python"
+    }
   ],
   "routes": [
-    { "src": "/", "dest": "/public/index.html" },
-    { "src": "/favicon.svg", "dest": "/public/favicon.svg" },
-    { "src": "/logo.svg", "dest": "/public/logo.svg" },
-    { "src": "/privacy.html", "dest": "/public/privacy.html" },
-    { "src": "/terms.html", "dest": "/public/terms.html" },
-    { "src": "/config.html", "dest": "/public/config.html" },
-    { "src": "/api/webhook", "dest": "/api/webhook.py" },
-    { "src": "/api/config", "dest": "/api/config.py" },
-    { "src": "/api/install", "dest": "/api/install.py" },
-    { "src": "/api/health", "dest": "/api/index.py" }
-  ]
+    {
+      "src": "/",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/favicon.svg",
+      "dest": "/public/favicon.svg"
+    },
+    {
+      "src": "/logo.svg",
+      "dest": "/public/logo.svg"
+    },
+    {
+      "src": "/privacy.html",
+      "dest": "/public/privacy.html"
+    },
+    {
+      "src": "/terms.html",
+      "dest": "/public/terms.html"
+    },
+    {
+      "src": "/config.html",
+      "dest": "/public/config.html"
+    },
+    {
+      "src": "/api/webhook",
+      "dest": "/api/webhook.py"
+    },
+    {
+      "src": "/api/config",
+      "dest": "/api/config.py"
+    },
+    {
+      "src": "/api/install",
+      "dest": "/api/install.py"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/dashboard.html",
+      "dest": "/public/dashboard.html"
+    },
+    {
+      "src": "/api/dashboard",
+      "dest": "/api/dashboard.py"
+    },
+    {
+      "src": "/api/process",
+      "dest": "/api/process.py"
+    },
+    {
+      "src": "/og-image.png",
+      "dest": "/public/og-image.png"
+    },
+    {
+      "src": "/og-image.svg",
+      "dest": "/public/og-image.svg"
+    },
+    {
+      "src": "/logo-light.svg",
+      "dest": "/public/logo-light.svg"
+    },
+    {
+      "src": "/logo-mono.svg",
+      "dest": "/public/logo-mono.svg"
+    },
+    {
+      "src": "/logo-wordmark.svg",
+      "dest": "/public/logo-wordmark.svg"
+    },
+    {
+      "src": "/apple-touch-icon.svg",
+      "dest": "/public/apple-touch-icon.svg"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/public/favicon.ico"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/public/robots.txt"
+    },
+    {
+      "src": "/sitemap.xml",
+      "dest": "/public/sitemap.xml"
+    }
+  ],
+  "crons": []
 }

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="PRPilot app icon">
+  <title>PRPilot app icon</title>
+  <rect width="180" height="180" rx="40" fill="#08080b"/>
+  <g fill="none" stroke="#e3b862" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M66 128 V66"/>
+    <path d="M66 92 L114 52"/>
+    <path d="M66 112 L108 82"/>
+  </g>
+  <circle cx="66" cy="59" r="9" fill="#e3b862"/>
+  <circle cx="118" cy="49" r="9" fill="#b8842f"/>
+  <circle cx="112" cy="80" r="8" fill="#e3b862"/>
+  <circle cx="66" cy="134" r="9" fill="#e3b862"/>
+</svg>

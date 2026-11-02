@@ -1,0 +1,38 @@
+name: PRPilot CI
+
+on:
+  push:
+    branches: [main, industry-upgrades]
+  pull_request:
+    branches: [main, industry-upgrades]
+
+jobs:
+  test:
+    name: Test Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Compile all Python files
+        run: python -m py_compile api/*.py agents/*.py github/*.py db/*.py tests/*.py
+
+      - name: Lint (non-blocking)
+        run: ruff check api agents github db tests || true
+        continue-on-error: true
+
+      - name: Run tests
+        run: python -m pytest -q
