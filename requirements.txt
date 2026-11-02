@@ -32,5 +32,5 @@ supabase==2.33.0
 google-genai==1.75.0
 openai==1.109.1
 cryptography==44.0.3
-PyJWT==2.10.1
+PyJWT==2.12.1  # bumped Nov 2 2026: supabase-auth 2.33.0 needs pyjwt>=2.12.0, 2.10.1 conflicted and broke CI install
 python-dotenv==1.2.4
